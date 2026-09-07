@@ -124,10 +124,16 @@
 
     <!-- ACTION BUTTONS -->
     <div class="flex items-center space-x-2">
-      <!-- Search Input -->
-      <div class="relative hidden sm:block">
-        <input type="text" id="nodeSearch" placeholder="🔍 Tìm kiếm bài, công thức, ví dụ..." 
-               class="bg-slate-800 text-slate-200 text-xs px-3 py-1.5 pl-7 rounded-lg border border-slate-700 w-56 focus:outline-none focus:border-blue-500 transition">
+      <!-- Quick Search with Dropdown Suggestion -->
+      <div class="relative">
+        <div class="relative">
+          <input type="text" id="nodeSearch" placeholder="🔍 Tìm nhanh bài, công thức, OLS, DID..." 
+                 class="bg-slate-800/90 text-slate-200 text-xs px-3 py-1.5 pl-7 rounded-xl border border-slate-700 w-44 md:w-64 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition shadow-inner">
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2 top-1.5 text-slate-400 hover:text-white text-xs">✕</button>
+        </div>
+        <div id="searchResultsDropdown" class="hidden absolute left-0 right-0 top-10 bg-slate-900/98 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto divide-y divide-slate-800/60 text-xs">
+          <!-- Populated by JS -->
+        </div>
       </div>
 
       <!-- Zoom Controls -->
@@ -204,10 +210,29 @@
         </g>
       </svg>
 
-      <!-- FLOATING HELPER -->
-      <div class="absolute bottom-4 left-4 pointer-events-none bg-slate-900/85 backdrop-blur border border-slate-800 rounded-xl p-3 text-[11px] text-slate-300 space-y-1 shadow-2xl">
-        <div>🖱️ <strong>Kéo chuột:</strong> Di chuyển toàn bộ bản đồ • <strong>Lăn chuột:</strong> Phóng to / Thu nhỏ</div>
-        <div>👆 <strong>Bấm vào dấu [+]/[−]:</strong> Mở rộng hoặc Thu gọn cành • <strong>Bấm vào nút bài:</strong> Mở ngay Bảng Tri Thức đầy đủ slide!</div>
+      <!-- FLOATING UX CONTROL BAR -->
+      <div class="absolute bottom-5 left-5 z-20 flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-3">
+        <!-- Quick View Preset Buttons -->
+        <div class="bg-slate-900/90 backdrop-blur-md border border-slate-800 p-1 rounded-2xl flex items-center space-x-1 shadow-2xl">
+          <button onclick="focusBranch('all')" class="px-2.5 py-1 text-[11px] font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+            🌳 Toàn Cảnh
+          </button>
+          <button onclick="focusBranch('left')" class="px-2.5 py-1 text-[11px] font-bold rounded-xl hover:bg-blue-950 text-blue-300 transition">
+            📘 Nhánh Quy Trình
+          </button>
+          <button onclick="focusBranch('right')" class="px-2.5 py-1 text-[11px] font-bold rounded-xl hover:bg-emerald-950 text-emerald-300 transition">
+            🔬 Nhánh Causal
+          </button>
+        </div>
+
+        <!-- Mouse Navigation Tip Badge -->
+        <div class="hidden lg:flex items-center space-x-2 bg-slate-900/80 backdrop-blur-md border border-slate-800/80 px-3 py-1.5 rounded-2xl text-[11px] text-slate-300 shadow-xl pointer-events-none">
+          <span>🖱️ <strong>Lăn chuột:</strong> Zoom đúng con trỏ</span>
+          <span class="text-slate-600">•</span>
+          <span>🖐️ <strong>Kéo chuột:</strong> Di chuyển</span>
+          <span class="text-slate-600">•</span>
+          <span>⚡ <strong>Bấm node:</strong> Đọc ngay slide</span>
+        </div>
       </div>
     </div>
 
@@ -844,6 +869,7 @@
       updateTransform();
       renderMindmapGraph();
       setupPanZoomEvents();
+      setupSmartSearch();
       closeSidebar();
     }
 
@@ -932,7 +958,7 @@ let nodeCoordinates = {};
       mindmapData.children.forEach((branch, bIdx) => {
         const isLeft = (bIdx === 0);
         const dir = isLeft ? -1 : 1;
-        const branchX = dir * 480;
+        const branchX = dir * 460;
         const branchY = 0;
 
         const branchLayout = {
@@ -967,7 +993,7 @@ let nodeCoordinates = {};
           // PASS 2: Place each lesson and its leaves inside its reserved, collision-free slot
           branch.children.forEach((lesson, lIdx) => {
             const h = lessonHeights[lIdx];
-            const lessonX = branchX + dir * 380;
+            const lessonX = branchX + dir * 320;
             const lessonY = currentY + h / 2; // Center lesson in its reserved vertical slot
 
             const lessonLayout = {
@@ -989,7 +1015,7 @@ let nodeCoordinates = {};
               const startLeafY = lessonY - leavesSpan / 2;
 
               lesson.children.forEach((sub, sIdx) => {
-                const subX = lessonX + dir * 360;
+                const subX = lessonX + dir * 300;
                 const subY = startLeafY + sIdx * LEAF_HEIGHT;
 
                 lessonLayout.children.push({
@@ -1142,38 +1168,49 @@ let nodeCoordinates = {};
 
       if (node.isRoot) {
         g.innerHTML = `
-          <rect x="-220" y="-34" width="440" height="68" rx="34" fill="url(#rootGradient)" stroke="#bfdbfe" stroke-width="3" class="pulse-glow" />
-          <text x="0" y="8" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="0.8">
-            🌳 PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
+          <rect x="-240" y="-38" width="480" height="76" rx="38" fill="url(#rootGradient)" stroke="#93c5fd" stroke-width="3.5" class="pulse-glow shadow-2xl" />
+          <circle cx="-195" cy="0" r="18" fill="#1e1b4b" stroke="#818cf8" stroke-width="2" />
+          <text x="-195" y="6" font-size="18" text-anchor="middle">🌳</text>
+          <text x="15" y="-3" fill="#ffffff" font-size="14.5" font-weight="900" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="0.6">
+            PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
+          </text>
+          <text x="15" y="19" fill="#c7d2fe" font-size="10.5" font-weight="700" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
+            HỆ THỐNG PHƯƠNG PHÁP LUẬN & 4 CÔNG CỤ NHÂN QUẢ (THE EFFECT)
           </text>
         `;
       } else if (node.isBranch) {
         const isCollapsed = collapsedNodes.has(node.id);
-        const circleX = (node.dir === -1) ? -165 : 165;
-        const bgFill = node.id === 'branch1' ? '#082f49' : '#064e3b';
+        const circleX = (node.dir === -1) ? -175 : 175;
+        const bgFill = node.id === 'branch1' ? 'url(#branch1Grad)' : 'url(#branch2Grad)';
+        const icon = node.id === 'branch1' ? '📘' : '🔬';
         g.innerHTML = `
-          <rect x="-180" y="-28" width="360" height="56" rx="20" fill="${bgFill}" stroke="${node.color}" stroke-width="3" />
-          <text x="${node.dir === -1 ? 16 : -16}" y="6" fill="#ffffff" font-size="12.5" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
+          <rect x="-170" y="-30" width="340" height="60" rx="20" fill="${bgFill}" stroke="#ffffff" stroke-width="2" filter="drop-shadow(0 8px 20px rgba(0,0,0,0.6))" />
+          <circle cx="${node.dir === -1 ? 135 : -135}" cy="0" r="15" fill="#0f172a" stroke="#ffffff" stroke-width="1.5" />
+          <text x="${node.dir === -1 ? 135 : -135}" y="5.5" font-size="15" text-anchor="middle">${icon}</text>
+          <text x="${node.dir === -1 ? -10 : 10}" y="5.5" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="0.2">
             ${node.name}
           </text>
-          <circle cx="${circleX}" cy="0" r="13" fill="${node.color}" stroke="#ffffff" stroke-width="1.5" />
-          <text x="${circleX}" y="5" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
+          <circle cx="${node.dir === -1 ? -150 : 150}" cy="0" r="13" fill="#0f172a" stroke="#ffffff" stroke-width="2" class="hover:scale-110 transition-transform cursor-pointer" />
+          <text x="${node.dir === -1 ? -150 : 150}" y="5" fill="#38bdf8" font-size="15" font-weight="900" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
         `;
       } else if (node.isLeaf) {
-        // Individual leaf node - beautifully styled organic leaf pill
-        const textW = Math.min(node.name.length * 6.8 + 36, 420);
+        // Individual leaf node - beautifully styled organic leaf pill with glow
+        const textW = Math.min(node.name.length * 7.0 + 44, 460);
         const rectX = (node.dir === -1) ? -textW : 0;
-        const textX = (node.dir === -1) ? -textW + 18 : 18;
+        const textX = (node.dir === -1) ? -textW + 22 : 22;
         const isActive = activeNodeId === node.id;
+        const leafGrad = isActive ? 'url(#activeLeafGrad)' : 'url(#leafGrad)';
         g.innerHTML = `
-          <rect x="${rectX}" y="-16" width="${textW}" height="32" rx="14" 
-                fill="${isActive ? '#065f46' : '#090d16'}" 
-                stroke="${isActive ? '#34d399' : (node.color || '#334155')}" 
-                stroke-width="${isActive ? '2.4' : '1.3'}" 
+          <rect x="${rectX}" y="-17" width="${textW}" height="35" rx="15" 
+                fill="${isActive ? '#064e3b' : '#0a101d'}" 
+                stroke="${isActive ? '#34d399' : '#1e293b'}" 
+                stroke-width="${isActive ? '2.2' : '1.4'}" 
+                filter="${isActive ? 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.5))' : 'none'}"
                 class="transition-all hover:stroke-emerald-400" />
-          <path d="${node.dir === -1 ? `M ${-textW + 10} 0 Q ${-textW + 6} -4, ${-textW + 10} -7 Q ${-textW + 14} -4, ${-textW + 10} 0` : `M 10 0 Q 6 -4, 10 -7 Q 14 -4, 10 0`}" fill="#10b981" />
-          <circle cx="${node.dir === -1 ? -textW + 10 : 10}" cy="0" r="3.5" fill="${node.color || '#38bdf8'}" />
-          <text x="${textX + 6}" y="4.5" fill="${isActive ? '#ffffff' : '#cbd5e1'}" font-size="10.5" font-weight="${isActive ? '700' : '500'}" font-family="'Plus Jakarta Sans', sans-serif">
+          <!-- Organic mini leaf badge -->
+          <circle cx="${node.dir === -1 ? -textW + 14 : 14}" cy="0" r="5" fill="${isActive ? '#34d399' : '#10b981'}" />
+          <text x="${node.dir === -1 ? -textW + 14 : 14}" y="3.5" fill="#ffffff" font-size="7.5" font-weight="900" text-anchor="middle">🍃</text>
+          <text x="${textX + 2}" y="4.5" fill="${isActive ? '#ffffff' : '#e2e8f0'}" font-size="11.5" font-weight="${isActive ? '800' : '600'}" font-family="'Plus Jakarta Sans', sans-serif">
             ${node.name}
           </text>
         `;
@@ -1181,17 +1218,23 @@ let nodeCoordinates = {};
         // Lesson node (Major tree limb)
         const isCollapsed = collapsedNodes.has(node.id);
         const isActive = activeNodeId === node.id;
-        const btnCircleX = (node.dir === -1) ? -145 : 145;
+        const btnCircleX = (node.dir === -1) ? -150 : 150;
+        const badgeColor = node.color || '#38bdf8';
         g.innerHTML = `
           <rect x="-160" y="-25" width="320" height="50" rx="16" 
-                fill="${isActive ? '#1e40af' : '#0f172a'}" 
-                stroke="${isActive ? '#93c5fd' : (node.color || '#475569')}" 
-                stroke-width="${isActive ? '3.5' : '2.2'}" />
-          <text x="${node.dir === -1 ? 14 : -14}" y="6" fill="${isActive ? '#ffffff' : '#f1f5f9'}" font-size="11.5" font-weight="700" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
+                fill="${isActive ? '#1e3a8a' : '#090d16'}" 
+                stroke="${isActive ? '#60a5fa' : badgeColor}" 
+                stroke-width="${isActive ? '3.0' : '1.8'}"
+                filter="${isActive ? 'drop-shadow(0 0 16px rgba(59, 130, 246, 0.7))' : 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))'}" />
+          <!-- Mini tree badge icon -->
+          <circle cx="${node.dir === -1 ? 135 : -135}" cy="0" r="11" fill="#0f172a" stroke="${badgeColor}" stroke-width="1.5" />
+          <text x="${node.dir === -1 ? 135 : -135}" y="4.5" font-size="11" text-anchor="middle">🎋</text>
+          
+          <text x="${node.dir === -1 ? -5 : 5}" y="5" fill="${isActive ? '#ffffff' : '#f8fafc'}" font-size="11.5" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
             ${node.name}
           </text>
-          <circle cx="${btnCircleX}" cy="0" r="11" fill="${node.color || '#3b82f6'}" stroke="#ffffff" stroke-width="1.2" />
-          <text x="${btnCircleX}" y="4.5" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
+          <circle cx="${btnCircleX}" cy="0" r="11" fill="${badgeColor}" stroke="#ffffff" stroke-width="1.5" class="hover:scale-110 transition-transform cursor-pointer" />
+          <text x="${btnCircleX}" y="4" fill="#ffffff" font-size="12" font-weight="900" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
         `;
       }
 
@@ -1481,7 +1524,7 @@ let nodeCoordinates = {};
       const h = container.clientHeight || (window.innerHeight - 56);
       panX = Math.round(w / 2);
       panY = Math.round(h / 2);
-      zoomLevel = (w < 1024) ? 0.60 : 0.80;
+      zoomLevel = (w < 1200) ? 0.32 : 0.40;
       updateTransform();
     }
 
@@ -1492,25 +1535,122 @@ let nodeCoordinates = {};
       );
     }
 
-    // SEARCH IN MINDMAP
-    document.getElementById("nodeSearch").addEventListener("input", function(e) {
-      const q = e.target.value.toLowerCase().trim();
-      if (!q) return;
 
-      function findInTree(n) {
-        if (n.name.toLowerCase().includes(q)) {
-          openNodeDetail(n.id);
-          return true;
-        }
-        if (n.children) {
-          for (let c of n.children) {
-            if (findInTree(c)) return true;
-          }
-        }
-        return false;
+    // QUICK BRANCH FOCUSING
+    function focusBranch(mode) {
+      const container = document.getElementById("canvas-container");
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || (window.innerHeight - 56);
+
+      if (mode === 'left') {
+        // Focus on Process/Proposal branch (left side)
+        panX = Math.round(w * 0.75);
+        panY = Math.round(h * 0.5);
+        zoomLevel = 0.70;
+      } else if (mode === 'right') {
+        // Focus on Causal Inference branch (right side)
+        panX = Math.round(w * 0.25);
+        panY = Math.round(h * 0.5);
+        zoomLevel = 0.70;
+      } else {
+        // Center view
+        panX = Math.round(w / 2);
+        panY = Math.round(h / 2);
+        zoomLevel = 0.56;
       }
-      findInTree(mindmapData);
-    });
+      updateTransform();
+    }
+
+    // SEARCH SUGGESTIONS & AUTO-FOCUS
+    function setupSmartSearch() {
+      const searchInput = document.getElementById("nodeSearch");
+      const dropdown = document.getElementById("searchResultsDropdown");
+      const clearBtn = document.getElementById("clearSearchBtn");
+
+      if (!searchInput || !dropdown) return;
+
+      // Build flat searchable index
+      const searchableNodes = [];
+      function crawl(n, pName = "") {
+        searchableNodes.push({
+          id: n.id,
+          name: n.name,
+          parent: pName,
+          summary: n.summary || n.desc || "",
+          badge: n.badge || ""
+        });
+        if (n.children) {
+          n.children.forEach(c => crawl(c, n.name));
+        }
+      }
+      crawl(mindmapData);
+
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) {
+          dropdown.classList.add("hidden");
+          dropdown.innerHTML = "";
+          clearBtn.classList.add("hidden");
+          return;
+        }
+
+        clearBtn.classList.remove("hidden");
+        const results = searchableNodes.filter(item => 
+          item.name.toLowerCase().includes(query) || 
+          item.summary.toLowerCase().includes(query)
+        ).slice(0, 8);
+
+        if (results.length === 0) {
+          dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center">Không tìm thấy kết quả phù hợp</div>`;
+          dropdown.classList.remove("hidden");
+          return;
+        }
+
+        dropdown.innerHTML = results.map(r => `
+          <div onclick="selectSearchResult('${r.id}')" class="p-2.5 hover:bg-blue-900/40 cursor-pointer flex items-center justify-between transition group">
+            <div class="truncate pr-2">
+              <div class="font-bold text-slate-200 group-hover:text-blue-300 truncate">${r.name}</div>
+              <div class="text-[10px] text-slate-400 truncate">${r.parent ? 'Nhánh: ' + r.parent : 'Gốc môn học'}</div>
+            </div>
+            <span class="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700 shrink-0">Mở ➔</span>
+          </div>
+        `).join('');
+        dropdown.classList.remove("hidden");
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add("hidden");
+        }
+      });
+    }
+
+    function selectSearchResult(nodeId) {
+      document.getElementById("searchResultsDropdown").classList.add("hidden");
+      openNodeDetail(nodeId);
+
+      // Smoothly pan camera towards this node
+      const coord = nodeCoordinates[nodeId];
+      if (coord) {
+        const container = document.getElementById("canvas-container");
+        const w = container.clientWidth || window.innerWidth;
+        const h = container.clientHeight || (window.innerHeight - 56);
+        zoomLevel = Math.max(0.75, zoomLevel);
+        panX = Math.round(w / 2 - coord.x * zoomLevel);
+        panY = Math.round(h / 2 - coord.y * zoomLevel);
+        updateTransform();
+      }
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById("nodeSearch");
+      searchInput.value = "";
+      document.getElementById("searchResultsDropdown").classList.add("hidden");
+      document.getElementById("clearSearchBtn").classList.add("hidden");
+      searchInput.focus();
+    }
+
 
     // VIEW SWITCHER
     function switchView(viewName) {
