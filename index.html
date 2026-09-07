@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sơ Đồ Tư Duy Trực Quan - Phương Pháp Nghiên Cứu & Causal Inference</title>
+  <title>Bách Khoa Toàn Thư: Phương Pháp Nghiên Cứu & Causal Inference</title>
   <!-- Allowlisted Tailwind CSS -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- MathJax -->
@@ -14,22 +14,20 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    /* Custom mindmap tree aesthetics */
     .tree-node {
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     .tree-node:hover {
-      transform: scale(1.04) translateY(-3px);
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.25);
+      transform: scale(1.03) translateY(-2px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
     }
-
     .node-active {
-      ring: 3px #3b82f6;
       border-color: #60a5fa !important;
       background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
       color: #ffffff !important;
     }
+    .node-active * { color: #ffffff !important; }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -39,16 +37,19 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- HEADER NAVBAR -->
-  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-lg">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-blue-500/20">
         🌳
       </div>
       <div>
-        <h1 class="font-extrabold text-base md:text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-          SƠ ĐỒ TƯ DUY TRỰC QUAN MÔN HỌC (VISUAL MINDMAP TREE)
-        </h1>
-        <p class="text-xs text-slate-400 font-medium">Phương Pháp Nghiên Cứu & Suy Luận Nguyên Nhân (Causal Inference)</p>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-extrabold text-base md:text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+            BÁCH KHOA TOÀN THƯ MÔN HỌC & SƠ ĐỒ CÂY TƯƠNG TÁC
+          </h1>
+          <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ĐẦY ĐỦ 100% BÀI GIẢNG</span>
+        </div>
+        <p class="text-xs text-slate-400 font-medium">Phương Pháp Nghiên Cứu • Kinh Tế Lượng Nâng Cao • Suy Luận Nguyên Nhân (The Effect)</p>
       </div>
     </div>
 
@@ -58,10 +59,10 @@
         🌳 Sơ Đồ Cây Tương Tác
       </button>
       <button onclick="switchView('decision')" id="btn-view-decision" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition">
-        🗺️ Cây Quyết Định Chọn Phương Pháp
+        🗺️ Cây Quyết Định Chọn Mô Hình
       </button>
       <button onclick="switchView('flashcards')" id="btn-view-flashcards" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition">
-        🎴 Flashcards Ôn Tập
+        🎴 Thẻ Ôn Thi & Flashcards
       </button>
     </div>
   </header>
@@ -69,146 +70,140 @@
   <!-- MAIN CONTAINER -->
   <main class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto flex flex-col space-y-6">
 
-    <!-- VIEW 1: VISUAL TREE MINDMAP -->
+    <!-- VIEW 1: VISUAL TREE MINDMAP & DEEP KNOWLEDGE -->
     <div id="view-mindmap" class="flex flex-col space-y-6">
       
       <!-- INSTRUCTION BANNER -->
-      <div class="bg-blue-950/50 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between text-xs text-blue-200">
-        <div class="flex items-center space-x-2">
-          <span class="text-lg">💡</span>
-          <span><strong>Hướng dẫn:</strong> Bấm trực tiếp vào các <strong>Nút bài học (Node)</strong> dưới sơ đồ cây để mở ngay bảng giải thích chi tiết, công thức và ví dụ ở bên cạnh!</span>
+      <div class="bg-blue-950/60 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between text-xs text-blue-200 shadow-sm">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-xl">💡</span>
+          <span><strong>Mẹo sử dụng:</strong> Nhấp vào bất kỳ <strong>Nút bài học nào</strong> trong sơ đồ cây bên trái để đọc toàn bộ lý thuyết sâu, công thức toán học chuẩn xác, ví dụ thực tế và các lưu ý tránh bẫy nghiên cứu ở bên phải!</span>
         </div>
       </div>
 
-      <!-- MIND MAP VISUAL TREE CONTAINER -->
+      <!-- GRID LAYOUT -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- LEFT: VISUAL TREE CANVAS (7 COLS) -->
-        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-x-auto min-h-[600px] flex flex-col justify-between space-y-8">
+        <!-- LEFT: VISUAL TREE DIAGRAM (5 COLS) -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col space-y-6 overflow-y-auto max-h-[85vh]">
           
-          <!-- ROOT NODE (CENTER TOP) -->
+          <!-- ROOT NODE -->
           <div class="flex justify-center">
-            <div class="tree-node bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-sm md:text-base px-6 py-3.5 rounded-2xl border border-blue-400/30 text-center shadow-xl shadow-blue-500/20 cursor-pointer">
+            <div class="tree-node bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-xs md:text-sm px-5 py-3 rounded-2xl border border-blue-400/30 text-center shadow-xl shadow-blue-500/20">
               🎯 PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
             </div>
           </div>
 
-          <!-- CONNECTOR LINES TO BRANCHES -->
-          <div class="w-full flex justify-center">
-            <div class="w-4/5 border-t-2 border-dashed border-slate-700 relative">
-              <div class="absolute left-0 -top-3 w-0.5 h-6 bg-slate-700"></div>
-              <div class="absolute right-0 -top-3 w-0.5 h-6 bg-slate-700"></div>
+          <!-- CONNECTOR -->
+          <div class="w-full flex justify-center -my-2">
+            <div class="w-3/4 border-t-2 border-dashed border-slate-700"></div>
+          </div>
+
+          <!-- BRANCH 1: PHẦN I -->
+          <div class="space-y-3 bg-slate-950/70 p-4 rounded-2xl border border-blue-500/30">
+            <div class="text-[11px] font-black text-blue-400 uppercase tracking-wider border-b border-blue-500/20 pb-2 flex items-center justify-between">
+              <span>📘 PHẦN I: QUY TRÌNH & ĐỀ CƯƠNG (PDF 1-7)</span>
+              <span class="text-[9px] bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full">6 Bài</span>
+            </div>
+
+            <div class="space-y-2">
+              <div onclick="selectNode('bai1')" id="node-bai1" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B1</span>
+                  <span class="truncate">Bài 1: Giới thiệu NCKH & Đạo đức</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
+
+              <div onclick="selectNode('bai2')" id="node-bai2" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B2</span>
+                  <span class="truncate">Bài 2: Vấn đề, RQs & Mục tiêu SMART</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
+
+              <div onclick="selectNode('bai3')" id="node-bai3" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B3</span>
+                  <span class="truncate">Bài 3: Tổng quan Lý thuyết & Khung</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
+
+              <div onclick="selectNode('bai5')" id="node-bai5" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B5</span>
+                  <span class="truncate">Bài 5: Thiết kế & Quan hệ Causal</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
+
+              <div onclick="selectNode('bai6')" id="node-bai6" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B6</span>
+                  <span class="truncate">Bài 6: Chọn mẫu, Cỡ mẫu & Data</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
+
+              <div onclick="selectNode('bai7')" id="node-bai7" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B7</span>
+                  <span class="truncate">Bài 7: Cấu trúc Đề cương & Báo cáo</span>
+                </div>
+                <span class="text-blue-400 text-xs">➔</span>
+              </div>
             </div>
           </div>
 
-          <!-- 2 MAIN BRANCHES -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- BRANCH 1: PHẦN I -->
-            <div class="space-y-4 bg-slate-950/60 p-4 rounded-2xl border border-blue-500/30">
-              <div class="text-xs font-black text-blue-400 uppercase tracking-wider border-b border-blue-500/20 pb-2 text-center">
-                📘 PHẦN I: QUY TRÌNH & ĐỀ CƯƠNG
-              </div>
-
-              <div class="space-y-2.5">
-                <div onclick="selectNode('bai1')" id="node-bai1" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B1</span>
-                    <span>Bài 1: Giới thiệu NCKH & Đạo đức</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-
-                <div onclick="selectNode('bai2')" id="node-bai2" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B2</span>
-                    <span>Bài 2: Vấn đề, RQs & ROs (SMART)</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-
-                <div onclick="selectNode('bai3')" id="node-bai3" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B3</span>
-                    <span>Bài 3: Lý thuyết & Khung phân tích</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-
-                <div onclick="selectNode('bai5')" id="node-bai5" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B5</span>
-                    <span>Bài 5: Thiết kế & Quan hệ Causal</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-
-                <div onclick="selectNode('bai6')" id="node-bai6" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B6</span>
-                    <span>Bài 6: Chọn mẫu & Data Cleaning</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-
-                <div onclick="selectNode('bai7')" id="node-bai7" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-blue-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">B7</span>
-                    <span>Bài 7: Viết Đề cương & Báo cáo</span>
-                  </div>
-                  <span class="text-blue-400">➔</span>
-                </div>
-              </div>
+          <!-- BRANCH 2: PHẦN II -->
+          <div class="space-y-3 bg-slate-950/70 p-4 rounded-2xl border border-emerald-500/30">
+            <div class="text-[11px] font-black text-emerald-400 uppercase tracking-wider border-b border-emerald-500/20 pb-2 flex items-center justify-between">
+              <span>🔬 PHẦN II: SUY LUẬN NGUYÊN NHÂN (LECTURE 1-4)</span>
+              <span class="text-[9px] bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded-full">4 Lecture</span>
             </div>
 
-            <!-- BRANCH 2: PHẦN II -->
-            <div class="space-y-4 bg-slate-950/60 p-4 rounded-2xl border border-emerald-500/30">
-              <div class="text-xs font-black text-emerald-400 uppercase tracking-wider border-b border-emerald-500/20 pb-2 text-center">
-                🔬 PHẦN II: SUY LUẬN NGUYÊN NHÂN
+            <div class="space-y-2">
+              <div onclick="selectNode('lec1')" id="node-lec1" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L1</span>
+                  <span class="truncate">Chương 1: Hồi quy OLS & Controls</span>
+                </div>
+                <span class="text-emerald-400 text-xs">➔</span>
               </div>
 
-              <div class="space-y-2.5">
-                <div onclick="selectNode('lec1')" id="node-lec1" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L1</span>
-                    <span>Lec 1: Hồi quy OLS & Controls</span>
-                  </div>
-                  <span class="text-emerald-400">➔</span>
+              <div onclick="selectNode('lec2')" id="node-lec2" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L2</span>
+                  <span class="truncate">Chương 2: Ghép cặp (Matching / PSM)</span>
                 </div>
+                <span class="text-emerald-400 text-xs">➔</span>
+              </div>
 
-                <div onclick="selectNode('lec2')" id="node-lec2" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L2</span>
-                    <span>Lec 2: Ghép cặp (Matching / PSM)</span>
-                  </div>
-                  <span class="text-emerald-400">➔</span>
+              <div onclick="selectNode('lec3')" id="node-lec3" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L3</span>
+                  <span class="truncate">Chương 3: Biến cố định (Fixed Effects)</span>
                 </div>
+                <span class="text-emerald-400 text-xs">➔</span>
+              </div>
 
-                <div onclick="selectNode('lec3')" id="node-lec3" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L3</span>
-                    <span>Lec 3: Biến cố định (Fixed Effects)</span>
-                  </div>
-                  <span class="text-emerald-400">➔</span>
+              <div onclick="selectNode('lec4')" id="node-lec4" class="tree-node p-2.5 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L4</span>
+                  <span class="truncate">Chương 4: Diff-in-Diffs (DID)</span>
                 </div>
-
-                <div onclick="selectNode('lec4')" id="node-lec4" class="tree-node p-3 bg-slate-800/90 border border-slate-700 hover:border-emerald-400 rounded-xl cursor-pointer text-xs font-semibold flex items-center justify-between text-slate-200">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">L4</span>
-                    <span>Lec 4: Diff-in-Diffs (DID)</span>
-                  </div>
-                  <span class="text-emerald-400">➔</span>
-                </div>
+                <span class="text-emerald-400 text-xs">➔</span>
               </div>
             </div>
-
           </div>
 
         </div>
 
-        <!-- RIGHT: DETAILED KNOWLEDGE CARD (5 COLS) -->
-        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4" id="nodeDetailPanel">
-          <!-- Injected via JavaScript -->
+        <!-- RIGHT: DEEP KNOWLEDGE PANEL (7 COLS) -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[85vh] space-y-6" id="nodeDetailPanel">
+          <!-- Injected dynamically via JS -->
         </div>
 
       </div>
@@ -224,16 +219,20 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
           
-          <div class="p-5 bg-slate-950/80 rounded-2xl border border-blue-500/30 space-y-3">
-            <h3 class="font-extrabold text-blue-400 text-sm border-b border-blue-500/20 pb-2">1. DỮ LIỆU CẮT NGANG (CROSS-SECTIONAL DATA)</h3>
-            <p class="text-slate-300">• <strong>Thu thập đủ các biến nhiễu Z quan sát được:</strong> Sử dụng <span class="text-blue-300 font-bold">Hồi quy OLS + Controls</span> hoặc <span class="text-blue-300 font-bold">Ghép cặp (Matching - PSM/CEM)</span>.</p>
-            <p class="text-slate-300">• <strong>Nghi ngờ có biến nhiễu ẩn không đo lường được:</strong> OLS & Matching sẽ bị sai lệch (OVB)! Chuyển sang <span class="text-amber-300 font-bold">Biến công cụ (IV)</span> hoặc <span class="text-amber-300 font-bold">RDD</span>.</p>
+          <div class="p-5 bg-slate-950/90 rounded-2xl border border-blue-500/30 space-y-3">
+            <h3 class="font-extrabold text-blue-400 text-sm border-b border-blue-500/20 pb-2 flex items-center space-x-2">
+              <span>📊 1. DỮ LIỆU CẮT NGANG (CROSS-SECTIONAL DATA)</span>
+            </h3>
+            <p class="text-slate-300 leading-relaxed">• <strong>Đủ biến quan sát Z:</strong> Sử dụng <span class="text-blue-300 font-bold">Hồi quy OLS + Controls</span> hoặc <span class="text-blue-300 font-bold">Ghép cặp (Matching - PSM/CEM)</span>. Giả định unconfoundedness cần được bảo vệ bằng lý thuyết và biểu đồ DAG.</p>
+            <p class="text-slate-300 leading-relaxed">• <strong>Nghi ngờ có biến nhiễu ẩn không quan sát được:</strong> OLS & Matching sẽ bị sai lệch Omitted Variable Bias (OVB)! Chuyển sang <span class="text-amber-300 font-bold">Biến công cụ (Instrumental Variables - IV)</span> hoặc <span class="text-amber-300 font-bold">Thiết kế Gián đoạn (Regression Discontinuity - RDD)</span>.</p>
           </div>
 
-          <div class="p-5 bg-slate-950/80 rounded-2xl border border-emerald-500/30 space-y-3">
-            <h3 class="font-extrabold text-emerald-400 text-sm border-b border-emerald-500/20 pb-2">2. DỮ LIỆU BẢNG (PANEL DATA)</h3>
-            <p class="text-slate-300">• <strong>Muốn triệt tiêu biến nhiễu cố định theo thời gian (α_i):</strong> Sử dụng <span class="text-emerald-300 font-bold">Biến cố định (Fixed Effects - FE / TWFE)</span>.</p>
-            <p class="text-slate-300">• <strong>Có sự kiện chính sách di chuyển trước - sau:</strong> Sử dụng <span class="text-emerald-300 font-bold">Difference-in-Differences (DID)</span>. Kiểm tra giả định Xu hướng song song bằng <span class="text-amber-300 font-bold">Event Study / Dynamic DID</span>!</p>
+          <div class="p-5 bg-slate-950/90 rounded-2xl border border-emerald-500/30 space-y-3">
+            <h3 class="font-extrabold text-emerald-400 text-sm border-b border-emerald-500/20 pb-2 flex items-center space-x-2">
+              <span>📈 2. DỮ LIỆU BẢNG (PANEL DATA)</span>
+            </h3>
+            <p class="text-slate-300 leading-relaxed">• <strong>Muốn triệt tiêu biến nhiễu cố định theo thời gian (α_i):</strong> Sử dụng <span class="text-emerald-300 font-bold">Biến cố định (Fixed Effects - FE / TWFE)</span>. FE loại bỏ hoàn toàn các đặc tính văn hóa, vị trí địa lý, năng lực bẩm sinh ổn định.</p>
+            <p class="text-slate-300 leading-relaxed">• <strong>Có sự kiện chính sách di chuyển trước - sau giữa các nhóm:</strong> Sử dụng <span class="text-emerald-300 font-bold">Difference-in-Differences (DID)</span>. Nếu các nhóm nhận chính sách ở các thời điểm rải rác (staggered rollout), phải dùng bộ ước lượng hiện đại <span class="text-amber-300 font-bold">Callaway & Sant'Anna (2021)</span> để tránh trọng số âm!</p>
           </div>
 
         </div>
@@ -261,143 +260,440 @@
 
   </main>
 
-  <!-- JAVASCRIPT KNOWLEDGE ENGINE -->
+  <!-- JAVASCRIPT COMPREHENSIVE KNOWLEDGE ENGINE -->
   <script>
-    const topicDetails = {
+    const fullKnowledge = {
       'bai1': {
         title: "Bài 1: Giới thiệu NCKH & Đạo đức Nghiên cứu",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "Bản chất NCKH, 5 đặc tính cốt lõi và quy chuẩn đạo đức phòng chống đạo văn (Plagiarism).",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-blue-400">1. 5 Đặc tính cốt lõi của NCKH</h4>
-            <ul class="list-disc pl-5 space-y-1">
-              <li><strong>Tính mục đích:</strong> Trả lời câu hỏi nghiên cứu cụ thể.</li>
-              <li><strong>Tính hệ thống:</strong> Thực hiện theo quy trình logic.</li>
-              <li><strong>Tính kiểm chứng:</strong> Đo lường và kiểm tra được bằng dữ liệu.</li>
-              <li><strong>Tính khách quan:</strong> Loại bỏ thiên vị cảm tính.</li>
-              <li><strong>Tính mới (Originality):</strong> Bổ sung tri thức mới hoặc bối cảnh mới.</li>
-            </ul>
-            <h4 class="font-bold text-sm text-amber-400">2. Đạo đức NCKH</h4>
-            <p>Không bịa đặt dữ liệu (Falsification/Fabrication) và trích dẫn chuẩn APA 7th để chống đạo văn.</p>
-          </div>
-        `
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Nền tảng NCKH",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Bản chất của tư duy khoa học, 5 đặc tính cốt lõi của nghiên cứu, phân loại phương pháp và quy chuẩn đạo đức nghiên cứu quốc tế.",
+        sections: [
+          {
+            title: "1. Bản chất & 5 Đặc tính của Nghiên cứu Khoa học",
+            body: `
+              <p class="mb-2">Nghiên cứu khoa học là quá trình tìm kiếm tri thức mới có phương pháp, logic và hệ thống. 5 đặc tính bắt buộc:</p>
+              <ul class="list-disc pl-5 space-y-1.5 text-slate-300">
+                <li><strong>Tính mục đích (Purposive):</strong> Bắt đầu từ câu hỏi rõ ràng nhằm giải quyết vấn đề lý luận hoặc thực tiễn.</li>
+                <li><strong>Tính hệ thống & logic (Systematic):</strong> Các bước từ lý thuyết ➔ giả thuyết ➔ phương pháp ➔ kết luận phải kết nối chặt chẽ.</li>
+                <li><strong>Tính kiểm chứng (Testability):</strong> Có khả năng kiểm định lại bằng dữ liệu thực nghiệm (Empirical data).</li>
+                <li><strong>Tính khách quan (Objectivity):</strong> Kết luận rút ra từ chứng cứ số liệu, độc lập với định kiến của tác giả.</li>
+                <li><strong>Tính mới (Novelty / Originality):</strong> Bổ sung tri thức mới, bối cảnh mới hoặc khắc phục hạn chế của các công trình trước.</li>
+              </ul>
+            `
+          },
+          {
+            title: "2. Phân loại Nghiên cứu Khoa học",
+            body: `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <strong class="text-blue-400 block mb-1">Theo Mục đích:</strong>
+                  <p>• <em>Cơ bản (Basic/Pure):</em> Phát triển, bổ sung lý thuyết nền tảng.</p>
+                  <p>• <em>Ứng dụng (Applied):</em> Giải quyết bài toán thực tiễn cụ thể.</p>
+                </div>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <strong class="text-emerald-400 block mb-1">Theo Phương pháp & Dữ liệu:</strong>
+                  <p>• <em>Định lượng:</em> Dữ liệu số, mô hình toán, kiểm định giả thuyết.</p>
+                  <p>• <em>Định tính:</em> Phỏng vấn sâu, quan sát, hiểu sâu hiện tượng.</p>
+                  <p>• <em>Hỗn hợp (Mixed):</em> Kết hợp khám phá định tính và kiểm định định lượng.</p>
+                </div>
+              </div>
+            `
+          },
+          {
+            title: "3. Đạo đức Nghiên cứu (Research Ethics)",
+            body: `
+              <div class="p-3.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-amber-200 space-y-1.5">
+                <p>• <strong>Trung thực học thuật:</strong> Tuyệt đối không ngụy tạo dữ liệu (Fabrication) hoặc bóp méo kết quả (Falsification).</p>
+                <p>• <strong>Bảo vệ đối tượng khảo sát:</strong> Bảo mật danh tính (Confidentiality) và có sự đồng thuận tham gia (Informed Consent).</p>
+                <p>• <strong>Chống đạo văn (Plagiarism):</strong> Phải trích dẫn nguồn rõ ràng (in-text citation và references) theo quy chuẩn APA 7th.</p>
+              </div>
+            `
+          }
+        ]
       },
+
       'bai2': {
-        title: "Bài 2: Vấn đề Nghiên cứu, RQs & ROs",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "Xác định Khe hổng nghiên cứu (Research Gap) và mục tiêu SMART.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-blue-400">1. Research Gap</h4>
-            <p>• <strong>Practical Gap:</strong> Vấn đề thực tế chưa có lời giải.</p>
-            <p>• <strong>Theoretical Gap:</strong> Lý thuyết chưa giải thích được bối cảnh mới.</p>
-            <p>• <strong>Empirical Gap:</strong> Kết quả thực nghiệm mâu thuẫn.</p>
-            <h4 class="font-bold text-sm text-emerald-400">2. Mục tiêu SMART</h4>
-            <p>Specific, Measurable, Achievable, Relevant, Time-bound.</p>
-          </div>
-        `
+        title: "Bài 2: Vấn đề Nghiên cứu, Câu hỏi (RQs) & Mục tiêu (ROs)",
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Xác định Vấn đề",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Quy trình nhận diện Khe hổng nghiên cứu (Research Gap), phát biểu câu hỏi nghiên cứu sắc nét và thiết lập mục tiêu theo tiêu chuẩn SMART.",
+        sections: [
+          {
+            title: "1. Nhận diện Khe hổng Nghiên cứu (Research Gap)",
+            body: `
+              <p class="mb-2">Vấn đề nghiên cứu xuất phát từ sự thiếu hụt tri thức giữa 'cái đã biết' và 'cái cần biết':</p>
+              <ul class="list-disc pl-5 space-y-1.5 text-slate-300">
+                <li><strong>Practical Gap (Khe hổng thực tiễn):</strong> Vấn đề mới nảy sinh từ thực tế (chính sách mới, biến động kinh tế số...) chưa có lời giải.</li>
+                <li><strong>Theoretical Gap (Khe hổng lý thuyết):</strong> Các lý thuyết hiện tại chưa giải thích thỏa đáng một mối quan hệ mới.</li>
+                <li><strong>Empirical Gap (Khe hổng thực nghiệm):</strong> Các công trình nghiên cứu trước đưa ra kết luận trái chiều nhau (mâu thuẫn), hoặc thiếu kiểm chứng tại bối cảnh thị trường mới nổi.</li>
+              </ul>
+            `
+          },
+          {
+            title: "2. Phát biểu Câu hỏi Nghiên cứu (Research Questions - RQs)",
+            body: `
+              <p>Câu hỏi nghiên cứu là kim chỉ nam định hình toàn bộ thiết kế nghiên cứu:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1 mt-2 text-xs">
+                <p>• <em>Câu hỏi mô tả:</em> Thực trạng hiện tượng như thế nào? (What is the current status?)</p>
+                <p>• <em>Câu hỏi tương quan:</em> Có mối liên hệ nào giữa các yếu tố? (Is there an association?)</p>
+                <p>• <em>Câu hỏi nhân quả:</em> Yếu tố X tác động như thế nào lên Y và qua cơ chế nào? (What is the causal impact of X on Y?)</p>
+              </div>
+            `
+          },
+          {
+            title: "3. Mục tiêu Nghiên cứu theo tiêu chí SMART",
+            body: `
+              <p class="mb-2">• <strong>Mục tiêu chung (General Objective):</strong> Mục đích bao trùm đề tài.</p>
+              <p class="mb-2">• <strong>Mục tiêu cụ thể (Specific Objectives - tiêu chí SMART):</strong></p>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                <div class="p-2 bg-slate-950 border border-slate-800 rounded-lg"><strong>S</strong>pecific<br><span class="text-[10px] text-slate-400">Rõ ràng, cụ thể</span></div>
+                <div class="p-2 bg-slate-950 border border-slate-800 rounded-lg"><strong>M</strong>easurable<br><span class="text-[10px] text-slate-400">Đo lường được</span></div>
+                <div class="p-2 bg-slate-950 border border-slate-800 rounded-lg"><strong>A</strong>chievable<br><span class="text-[10px] text-slate-400">Có tính khả thi</span></div>
+                <div class="p-2 bg-slate-950 border border-slate-800 rounded-lg"><strong>R</strong>elevant<br><span class="text-[10px] text-slate-400">Khớp với RQs</span></div>
+                <div class="p-2 bg-slate-950 border border-slate-800 rounded-lg col-span-2 sm:col-span-1"><strong>T</strong>ime-bound<br><span class="text-[10px] text-slate-400">Thời hạn rõ ràng</span></div>
+              </div>
+            `
+          }
+        ]
       },
+
       'bai3': {
-        title: "Bài 3: Lý thuyết & Khung Phân tích",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "Tổng quan tài liệu, sơ đồ hóa khung phân tích và phát biểu giả thuyết.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-blue-400">Khung Phân tích & Giả thuyết</h4>
-            <p>Sơ đồ hóa mối quan hệ giữa Biến Độc lập (X), Biến Phụ thuộc (Y), Biến Trung gian (M), Biến Điều tiết (W) và Biến Kiểm soát (Z).</p>
-          </div>
-        `
+        title: "Bài 3: Tổng quan Lý thuyết & Xây dựng Khung Phân tích",
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Khung Lý thuyết",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Quy trình tổng quan tài liệu học thuật, lập ma trận lý thuyết và xây dựng khung phân tích với các loại biến số.",
+        sections: [
+          {
+            title: "1. Kỹ năng Tổng quan Tài liệu (Literature Review)",
+            body: `
+              <p class="mb-2">Tổng quan tài liệu là một lập luận có cấu trúc nhằm chứng minh tính cần thiết của nghiên cứu:</p>
+              <ol class="list-decimal pl-5 space-y-1 text-slate-300 text-xs">
+                <li>Xác định từ khóa và chiến lược tìm kiếm (Boolean operators AND, OR, NOT) trên Scopus, Web of Science, Google Scholar.</li>
+                <li>Lập bảng Ma trận tổng quan tài liệu (Literature Matrix): Tác giả, Năm, Mẫu nghiên cứu, Phương pháp, Kết quả chính, Hạn chế.</li>
+                <li>Tổng hợp theo chủ đề và chỉ ra khoảng trống (Synthesis & Critical evaluation).</li>
+              </ol>
+            `
+          },
+          {
+            title: "2. Cấu trúc Khung Phân tích (Conceptual Framework) & Các loại Biến",
+            body: `
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs space-y-1.5 overflow-x-auto text-blue-300">
+                <p>• Biến Độc lập (Independent / Treatment X): Yếu tố nguyên nhân gây ra tác động.</p>
+                <p>• Biến Phụ thuộc (Dependent / Outcome Y): Kết quả chịu tác động.</p>
+                <p>• Biến Trung gian (Mediating M): Truyền dẫn cơ chế tác động (X ➔ M ➔ Y).</p>
+                <p>• Biến Điều tiết (Moderating W): Làm thay đổi cường độ hoặc chiều hướng tác động.</p>
+                <p>• Biến Kiểm soát (Control Z): Các yếu tố nhiễu cần kiểm soát để tránh sai lệch.</p>
+              </div>
+            `
+          },
+          {
+            title: "3. Phát biểu Giả thuyết Nghiên cứu (Hypotheses)",
+            body: `
+              <p class="text-xs">Giả thuyết phải có cơ sở lý luận vững chắc dẫn dắt từ các lý thuyết nền (Foundational Theories). Ví dụ: <em>H1: Chuyển đổi số có tác động tích cực đến hiệu quả tài chính của doanh nghiệp.</em></p>
+            `
+          }
+        ]
       },
+
       'bai5': {
-        title: "Bài 5: Thiết kế & Quan hệ Causal",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "3 điều kiện Causal Relationship và Internal vs External Validity.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-emerald-400">3 Điều kiện Nhân - Quả (Causality)</h4>
-            <ol class="list-decimal pl-5 space-y-1">
-              <li>Có mối tương quan thống kê giữa X và Y.</li>
-              <li>X xảy ra trước Y về mặt thời gian.</li>
-              <li>Loại trừ được mọi nguyên nhân thay thế (không bị biến nhiễu gây tương quan giả).</li>
-            </ol>
-          </div>
-        `
+        title: "Bài 5: Thiết kế Nghiên cứu & Bản chất Quan hệ Causal",
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Thiết kế & Validity",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Thiết kế nghiên cứu, 3 điều kiện xác định mối quan hệ nhân-quả và phân tích chi tiết độ giá trị (Internal vs External Validity).",
+        sections: [
+          {
+            title: "1. Ba Điều kiện để Kết luận Mối quan hệ Nhân - Quả (Causality)",
+            body: `
+              <div class="p-3.5 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-emerald-200 space-y-2 text-xs">
+                <p><strong>1. Mối tương quan thống kê (Covariation):</strong> Biến X và Y phải cùng biến thiên có ý nghĩa thống kê.</p>
+                <p><strong>2. Thứ tự thời gian (Temporal Precedence):</strong> X phải xảy ra TRƯỚC Y (nguyên nhân phải đi trước kết quả).</p>
+                <p><strong>3. Loại bỏ nguyên nhân thay thế (Elimination of Alternatives / Non-spuriousness):</strong> Mối quan hệ không phải do một biến ẩn thứ ba (Confounder) tạo ra tương quan ảo.</p>
+              </div>
+            `
+          },
+          {
+            title: "2. Độ giá trị Nội tại (Internal) vs Bên ngoài (External Validity)",
+            body: `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                  <span class="font-bold text-blue-400 block mb-1">Internal Validity (Nội tại):</span>
+                  Khẳng định sự thay đổi của Y là do chính X tạo ra. Các nguy cơ: Sai lệch chọn mẫu (Selection bias), Biến động thời gian (History/Maturation), Suy hao mẫu (Attrition).
+                </div>
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                  <span class="font-bold text-purple-400 block mb-1">External Validity (Bên ngoài):</span>
+                  Khả năng tổng quát hóa kết quả sang các ngành khác, khu vực địa lý khác hoặc thời kỳ khác.
+                </div>
+              </div>
+            `
+          }
+        ]
       },
+
       'bai6': {
-        title: "Bài 6: Chọn Mẫu & Data Cleaning",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "Kỹ thuật chọn mẫu xác suất/phi xác suất và làm sạch dữ liệu.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-blue-400">Phương pháp Chọn mẫu</h4>
-            <p>• <strong>Xác suất:</strong> Ngẫu nhiên đơn, Phân tầng (Stratified), Cụm (Cluster).</p>
-            <p>• <strong>Phi xác suất:</strong> Thuận tiện (Convenience), Chủ đích (Purposive), Tuyết lăn (Snowball).</p>
-          </div>
-        `
+        title: "Bài 6: Thu thập Thông tin, Chọn mẫu & Quản lý Dữ liệu",
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Chọn mẫu & Data",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Kỹ thuật chọn mẫu, các công thức tính cỡ mẫu (Slovin, Yamane, Green), kiểm soát sai lệch và quy trình làm sạch dữ liệu.",
+        sections: [
+          {
+            title: "1. Kỹ thuật Chọn mẫu: Xác suất vs Phi xác suất",
+            body: `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <strong class="text-blue-400 block mb-1">Chọn mẫu Xác suất (Khái quát hóa cao):</strong>
+                  <ul class="list-disc pl-4 space-y-1">
+                    <li>Ngẫu nhiên đơn (Simple Random): Mọi cá thể có xác suất như nhau.</li>
+                    <li>Phân tầng (Stratified): Chia nhóm theo đặc tính rồi bốc ngẫu nhiên.</li>
+                    <li>Cụm (Cluster): Bốc ngẫu nhiên cả cụm đơn vị (trường, xã).</li>
+                  </ul>
+                </div>
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <strong class="text-purple-400 block mb-1">Chọn mẫu Phi xác suất:</strong>
+                  <ul class="list-disc pl-4 space-y-1">
+                    <li>Thuận tiện (Convenience): Dễ tiếp cận nhất.</li>
+                    <li>Chủ đích (Purposive): Chọn người có chuyên môn phù hợp.</li>
+                    <li>Tuyết lăn (Snowball): Nhờ người này giới thiệu người kia.</li>
+                  </ul>
+                </div>
+              </div>
+            `
+          },
+          {
+            title: "2. Các Công thức Xác định Cỡ Mẫu (Sample Size)",
+            body: `
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs space-y-2 text-slate-300">
+                <p>• <strong>Công thức Slovin / Yamane:</strong> \\[ n = \\frac{N}{1 + N \\cdot e^2} \\] (với $N$ là quy mô tổng thể, $e$ là sai số chấp nhận được, thường là 0.05).</p>
+                <p>• <strong>Quy tắc Green (1991) cho Hồi quy đa biến:</strong><br>
+                - Để kiểm định hệ số $R^2$: \\[ N \\ge 50 + 8m \\]<br>
+                - Để kiểm định từng hệ số hồi quy riêng lẻ $\\beta$: \\[ N \\ge 104 + m \\] (với $m$ là số lượng biến độc lập).</p>
+              </div>
+            `
+          },
+          {
+            title: "3. Quy trình Quản lý & Làm sạch Dữ liệu (Data Cleaning)",
+            body: `
+              <p class="text-xs">Mã hóa biến số ➔ Xử lý dữ liệu khuyết (Missing data: Listwise deletion hoặc Multiple Imputation) ➔ Phát hiện điểm ngoại lai (Outliers bằng Boxplot, khoảng $Z$-score > 3 hoặc khoảng tứ phân vị IQR) ➔ Kiểm tra phân phối chuẩn.</p>
+            `
+          }
+        ]
       },
+
       'bai7': {
-        title: "Bài 7: Viết Đề cương & Báo cáo",
-        subtitle: "Phần I: Lập Đề Cương & Quy Trình",
-        summary: "Cấu trúc proposal tiêu chuẩn và quy chuẩn trích dẫn.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-purple-400">Cấu trúc Proposal</h4>
-            <p>Chương 1: Giới thiệu ➔ Chương 2: Tổng quan Lý thuyết ➔ Chương 3: Phương pháp Nghiên cứu ➔ Kế hoạch thực hiện.</p>
-          </div>
-        `
+        title: "Bài 7: Viết Đề cương & Báo cáo Nghiên cứu Khoa học",
+        part: "Phần I: Lập Đề Cương & Quy Trình",
+        tag: "Đề cương & Báo cáo",
+        badgeColor: "text-blue-400 border-blue-500/30 bg-blue-950/40",
+        summary: "Cấu trúc chuẩn của Đề cương Nghiên cứu (Proposal), cấu trúc luận văn 5 chương và quy chuẩn trích dẫn khoa học APA 7th.",
+        sections: [
+          {
+            title: "1. Cấu trúc Tiêu chuẩn của Đề cương Nghiên cứu (Proposal)",
+            body: `
+              <div class="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs text-slate-300">
+                <p><strong>1. Phần Mở đầu:</strong> Tính cấp thiết đề tài, Câu hỏi RQs, Mục tiêu ROs, Đối tượng & Phạm vi, Đóng góp mới.</p>
+                <p><strong>2. Tổng quan Lý thuyết & Khung Nghiên cứu:</strong> Cơ sở lý thuyết nền tảng, Các nghiên cứu thực nghiệm liên quan, Khung phân tích và Giả thuyết.</p>
+                <p><strong>3. Phương pháp Nghiên cứu:</strong> Thiết kế chọn mẫu, Mô hình kinh tế lượng/thống kê, Kỹ thuật phân tích dữ liệu, Chiến lược định danh nhân quả.</p>
+                <p><strong>4. Kế hoạch Tiến độ & Dự toán Kinh phí.</strong></p>
+                <p><strong>5. Danh mục Tài liệu Tham khảo.</strong></p>
+              </div>
+            `
+          },
+          {
+            title: "2. Quy chuẩn Trích dẫn APA 7th",
+            body: `
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-1.5">
+                <p>• <em>Trích dẫn trong bài (In-text):</em> (Huntington-Klein, 2021) hoặc "Theo Huntington-Klein (2021)...". Khi có từ 3 tác giả trở lên: (Nguyen et al., 2023).</p>
+                <p>• <em>Danh mục tài liệu tham khảo:</em> Xếp theo thứ tự bảng chữ cái tên tác giả đầu tiên; bài báo khoa học phải ghi rõ Tên tác giả, Năm, Tên bài, <em>Tên tạp chí (in nghiêng)</em>, Tập(Số), Trang, và mã DOI.</p>
+              </div>
+            `
+          }
+        ]
       },
+
       'lec1': {
-        title: "Chương 1: Hồi quy OLS & Control Variables",
-        subtitle: "Phần II: Suy Luận Nguyên Nhân",
-        summary: "Potential Outcomes Framework, Backdoor Criterion và OVB.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-emerald-400">Potential Outcomes & OVB</h4>
-            <p>Mô hình OLS: <code class="text-blue-300 font-mono">Y = β0 + β1*X + γ*Z + ε</code></p>
-            <p>Đưa tập biến kiểm soát Z vào để đóng đường cửa sau X ⬅️ A ➡️ Y, triệt tiêu Sai lệch biến bị bỏ sót (OVB).</p>
-          </div>
-        `
+        title: "Chương 1: Hồi quy OLS & Biến kiểm soát (Regression & Controls)",
+        part: "Phần II: Suy Luận Nguyên Nhân",
+        tag: "Causal OLS",
+        badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+        summary: "Khung Phản thực (Potential Outcomes), Tiêu chí Cửa sau (Backdoor Criterion), Sai lệch biến bị bỏ sót (OVB) và bẫy Bad Controls.",
+        sections: [
+          {
+            title: "1. Khung Phản thực (Potential Outcomes Framework)",
+            body: `
+              <p class="mb-2 text-xs">Mỗi đối tượng $i$ có 2 kết quả tiềm năng:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs space-y-1 text-emerald-300">
+                <p>• $Y_i(1)$: Kết quả của $i$ nếu NHẬN can thiệp ($X_i = 1$).</p>
+                <p>• $Y_i(0)$: Kết quả của $i$ nếu KHÔNG NHẬN can thiệp ($X_i = 0$).</p>
+                <p class="text-amber-300 pt-1">• Causal Effect cá nhân: $\\tau_i = Y_i(1) - Y_i(0)$.</p>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">Vấn đề cốt lõi (Fundamental Problem): Chỉ quan sát được $Y_i = X_i Y_i(1) + (1-X_i) Y_i(0)$, phần còn lại là <em>Counterfactual (Phản thực)</em> không bao giờ nhìn thấy trực tiếp.</p>
+            `
+          },
+          {
+            title: "2. Tiêu chí Cửa sau (Backdoor Criterion) & Sai lệch OVB",
+            body: `
+              <p class="text-xs mb-2">Đường cửa sau là mối liên kết không nhân quả tạo bởi biến nhiễu $A$: $X \\leftarrow A \\rightarrow Y$.</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs space-y-1 text-blue-300">
+                <p>Mô hình Hồi quy OLS: \\[ Y_i = \\beta_0 + \\beta_1 X_i + \\mathbf{\\gamma} \\mathbf{Z}_i + \\varepsilon_i \\]</p>
+              </div>
+              <p class="text-xs mt-2">Nếu bỏ sót biến nhiễu $A$, hệ số $\\beta_1$ sẽ bị sai lệch (Omitted Variable Bias - OVB):</p>
+              <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-amber-300">
+                \\[ \\text{Bias} = \\beta_{A} \\times \\frac{\\text{Cov}(X, A)}{\\text{Var}(X)} \\]
+              </div>
+            `
+          },
+          {
+            title: "3. Cảnh báo Bẫy Biến Kiểm Soát Xấu (Bad Controls & Colliders)",
+            body: `
+              <div class="p-3.5 bg-rose-950/40 border border-rose-500/40 rounded-xl text-rose-200 text-xs space-y-1.5">
+                <p>• <strong>Không kiểm soát biến trung gian (Mediator):</strong> Kiểm soát biến nằm trên đường dẫn $X \\rightarrow M \\rightarrow Y$ sẽ triệt tiêu tác động thực sự.</p>
+                <p>• <strong>Collider Bias:</strong> Nếu một biến $C$ chịu ảnh hưởng bởi cả $X$ và $Y$ ($X \\rightarrow C \\leftarrow Y$), việc đưa $C$ vào mô hình sẽ TỰ ĐỘNG MỞ RA một đường cửa sau giả mạo!</p>
+              </div>
+            `
+          }
+        ]
       },
+
       'lec2': {
-        title: "Chương 2: Phương pháp Ghép cặp (Matching)",
-        subtitle: "Phần II: Suy Luận Nguyên Nhân",
-        summary: "PSM, CEM và Balance Test.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-emerald-400">PSM & CEM</h4>
-            <p>Giả định cốt lõi: Selection on Observables (Unconfoundedness) và Common Support.</p>
-          </div>
-        `
+        title: "Chương 2: Phương pháp Ghép cặp (Matching Methods)",
+        part: "Phần II: Suy Luận Nguyên Nhân",
+        tag: "Matching / PSM",
+        badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+        summary: "Đóng cửa sau bằng phương pháp phi tham số: Ghép cặp theo Propensity Score (PSM), Ghép cặp thô chính xác (CEM), Vùng hỗ trợ chung và kiểm tra cân bằng.",
+        sections: [
+          {
+            title: "1. Giả định Cốt lõi của Matching",
+            body: `
+              <div class="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <p><strong>1. Conditional Independence Assumption (CIA / Selection on Observables):</strong><br>
+                \\[ (Y(0), Y(1)) \\perp X \\mid Z \\]<br>
+                Sau khi kiểm soát tập biến $Z$, việc nhận treatment xem như phân bổ ngẫu nhiên.</p>
+                <p><strong>2. Common Support (Vùng hỗ trợ chung / Overlap):</strong><br>
+                \\[ 0 < P(X=1 \\mid Z) < 1 \\]<br>
+                Với mọi đặc điểm $Z$, luôn có cả cá thể Treated lẫn Control để ghép cặp.</p>
+              </div>
+            `
+          },
+          {
+            title: "2. Kỹ thuật PSM vs CEM",
+            body: `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                  <strong class="text-emerald-400 block mb-1">Propensity Score Matching (PSM):</strong>
+                  Ước lượng $P(Z) = P(X=1 \\mid Z)$ qua Logit/Probit để nén nhiều biến thành 1 chỉ số vô hướng. Ghép bằng láng giềng gần nhất (Nearest Neighbor) hoặc Caliper/Radius.
+                </div>
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                  <strong class="text-purple-400 block mb-1">Coarsened Exact Matching (CEM):</strong>
+                  Làm thô các biến liên tục thành các khoảng (bins), sau đó ghép cặp chính xác. Đảm bảo cân bằng tối đa mà không phụ thuộc vào mô hình Logit.
+                </div>
+              </div>
+            `
+          },
+          {
+            title: "3. Kiểm định Cân bằng (Balance Diagnostics)",
+            body: `
+              <p class="text-xs">Sau khi ghép, bắt buộc phải báo cáo <strong>Standardized Mean Difference (SMD)</strong>. Giá trị $|SMD| < 0.1$ cho tất cả các biến chứng minh mẫu đã được cân bằng tốt giữa nhóm can thiệp và đối chứng.</p>
+            `
+          }
+        ]
       },
+
       'lec3': {
-        title: "Chương 3: Phương pháp Biến cố định (Fixed Effects)",
-        subtitle: "Phần II: Suy Luận Nguyên Nhân",
-        summary: "Panel Data & Demeaning (Within Transformation).",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-emerald-400">Panel Data FE & Demeaning</h4>
-            <p>Triệt tiêu biến nhiễu KHÔNG QUAN SÁT ĐƯỢC nhưng CỐ ĐỊNH theo thời gian (α_i).</p>
-          </div>
-        `
+        title: "Chương 3: Phương pháp Biến cố định (Fixed Effects - FE)",
+        part: "Phần II: Suy Luận Nguyên Nhân",
+        tag: "Panel Data FE",
+        badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+        summary: "Khai thác dữ liệu bảng (Panel Data), phép biến đổi Within Transformation (Demeaning) triệt tiêu biến nhiễu ẩn cố định, mô hình TWFE và kiểm định Hausman.",
+        sections: [
+          {
+            title: "1. Dữ liệu Bảng & Cơ chế Biến cố định",
+            body: `
+              <p class="text-xs mb-2">Quan sát $N$ đơn vị ($i$) qua $T$ thời kỳ ($t$). Mô hình:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-blue-300">
+                \\[ Y_{it} = \\beta_0 + \\beta_1 X_{it} + \\mathbf{\\gamma} \\mathbf{Z}_{it} + \\alpha_i + \\delta_t + \\varepsilon_{it} \\]
+              </div>
+              <ul class="list-disc pl-5 space-y-1 text-xs text-slate-300 mt-2">
+                <li>$\\alpha_i$ (Unit FE): Hấp thụ TẤT CẢ các đặc tính ẩn <strong>cố định theo thời gian</strong> của đơn vị $i$ (vị trí địa lý, văn hóa, năng lực bẩm sinh).</li>
+                <li>$\\delta_t$ (Time FE): Hấp thụ các cú sốc vĩ mô chung theo năm $t$ (khủng hoảng tài chính, dịch bệnh, lạm phát).</li>
+              </ul>
+            `
+          },
+          {
+            title: "2. Phép biến đổi Demeaning (Within Transformation)",
+            body: `
+              <p class="text-xs mb-1">FE triệt tiêu $\\alpha_i$ bằng cách trừ cho giá trị trung bình của chính đơn vị đó:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300">
+                \\[ \\tilde{Y}_{it} = Y_{it} - \\bar{Y}_i, \\quad \\tilde{X}_{it} = X_{it} - \\bar{X}_i \\]
+                \\[ \\tilde{Y}_{it} = \\beta_1 \\tilde{X}_{it} + \\tilde{\\varepsilon}_{it} \\]
+              </div>
+              <p class="text-xs text-slate-400 mt-2">Vì $\\alpha_i - \\bar{\\alpha}_i = 0$, toàn bộ biến nhiễu ẩn cố định biến mất hoàn toàn!</p>
+            `
+          },
+          {
+            title: "3. Giới hạn & Kiểm định Hausman",
+            body: `
+              <p class="text-xs">• <em>Hạn chế:</em> FE không ước lượng được hệ số cho các biến cố định theo thời gian (như Giới tính, Quê quán) và không xử lý được biến nhiễu thay đổi theo thời gian (Time-varying confounders).<br>
+              • <em>Hausman Test:</em> Kiểm định $H_0$: Random Effects (RE) là hiệu quả. Nếu $p < 0.05$, bác bỏ $H_0$ và bắt buộc phải dùng Fixed Effects (FE).</p>
+            `
+          }
+        ]
       },
+
       'lec4': {
-        title: "Chương 4: Diff-in-Diffs (DID & Event Study)",
-        subtitle: "Phần II: Suy Luận Nguyên Nhân",
-        summary: "4 Cell Means, Parallel Trends Assumption và Staggered Adoption.",
-        content: `
-          <div class="space-y-4 text-xs text-slate-300">
-            <h4 class="font-bold text-sm text-emerald-400">DID & Parallel Trends</h4>
-            <p>Công thức: <code class="text-amber-300 font-mono">δ_DID = (Y_T,post - Y_T,pre) - (Y_C,post - Y_C,pre)</code></p>
-          </div>
-        `
+        title: "Chương 4: Khác biệt trong Khác biệt (Difference-in-Differences - DID)",
+        part: "Phần II: Suy Luận Nguyên Nhân",
+        tag: "DID & Event Study",
+        badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+        summary: "Công thức 4 Cell Means, Giả định Xu hướng song song (Parallel Trends), Mô hình Event Study và cuộc cách mạng Staggered DID hiện đại.",
+        sections: [
+          {
+            title: "1. Trực giác 4 Cell Means & Mô hình TWFE",
+            body: `
+              <p class="text-xs mb-2">DID lấy thay đổi trước-sau của nhóm can thiệp trừ đi thay đổi trước-sau của nhóm đối chứng:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-amber-300">
+                \\[ \\delta_{DID} = (\\bar{Y}_{T,post} - \\bar{Y}_{T,pre}) - (\\bar{Y}_{C,post} - \\bar{Y}_{C,pre}) \\]
+              </div>
+              <p class="text-xs mt-2 mb-1">Ước lượng qua phương trình hồi quy tương tác:</p>
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-blue-300">
+                \\[ Y_{it} = \\alpha + \\beta_1 Treated_i + \\beta_2 Post_t + \\delta (Treated_i \\times Post_t) + \\varepsilon_{it} \\]
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Hệ số $\\delta$ chính là tác động trung bình của can thiệp lên nhóm điều trị (ATT).</p>
+            `
+          },
+          {
+            title: "2. Giả định Tối cao: Xu hướng Song song (Parallel Trends Assumption)",
+            body: `
+              <div class="p-3.5 bg-amber-950/40 border border-amber-500/40 rounded-xl text-amber-200 text-xs space-y-1.5">
+                <p><strong>Giả định phản thực (Counterfactual Assumption):</strong></p>
+                \\[ E[Y_{it}(0) - Y_{is}(0) \\mid Treated = 1] = E[Y_{it}(0) - Y_{is}(0) \\mid Treated = 0] \\]
+                <p>Nếu không có can thiệp, khoảng cách giữa nhóm Treated và Control sẽ giữ nguyên không đổi qua thời gian.</p>
+              </div>
+            `
+          },
+          {
+            title: "3. Event Study & DID Hiện đại (Staggered Adoption)",
+            body: `
+              <div class="space-y-2 text-xs text-slate-300">
+                <p>• <strong>Event Study / Dynamic DID:</strong> Ước lượng các hệ số theo từng mốc thời gian trước và sau can thiệp. Các hệ số trước can thiệp ($t-3, t-2, t-1$) phải xấp xỉ bằng 0 và không có ý nghĩa thống kê để chứng minh pre-trends song song.</p>
+                <p>• <strong>Cách mạng Staggered Adoption:</strong> Khi các nhóm nhận can thiệp ở các năm khác nhau (ví dụ: tỉnh A nhận 2018, tỉnh B nhận 2020), TWFE ngây thơ sẽ dùng nhóm đã can thiệp làm nhóm đối chứng cho nhóm can thiệp sau, gây ra <em>Trọng số âm (Negative weights)</em> làm sai lệch kết quả! Giải pháp bắt buộc: Dùng bộ ước lượng <strong>Callaway & Sant'Anna (2021)</strong> hoặc <strong>Sun & Abraham (2021)</strong>.</p>
+              </div>
+            `
+          }
+        ]
       }
     };
 
     const cards = [
       { q: "❓ Thử thách 1: Giả định cốt lõi tối cao của phương pháp Difference-in-Differences (DID) là gì?", a: "💡 GIẢI ĐÁP: Giả định Xu hướng Song song (Parallel Trends Assumption) – Nếu không có chính sách, xu hướng di chuyển của nhóm Treated sẽ hoàn toàn song song với nhóm Control." },
       { q: "❓ Thử thách 2: Phương pháp Fixed Effects (FE) loại bỏ được loại biến nhiễu nào mà OLS thường bó tay?", a: "💡 GIẢI ĐÁP: Các biến nhiễu KHÔNG QUAN SÁT ĐƯỢC nhưng CỐ ĐỊNH theo thời gian (Time-invariant unobserved confounders như gen, vị trí địa lý, văn hóa)." },
-      { q: "❓ Thử thách 3: Khung Phản thực (Counterfactual / Potential Outcomes) có vấn đề cốt lõi nào?", a: "💡 GIẢI ĐÁP: Không bao giờ quan sát được đồng thời cả Y(1) và Y(0) trên cùng một cá nhân tại cùng một thời điểm." }
+      { q: "❓ Thử thách 3: Khung Phản thực (Counterfactual / Potential Outcomes) có vấn đề cốt lõi nào?", a: "💡 GIẢI ĐÁP: Không bao giờ quan sát được đồng thời cả Y(1) và Y(0) trên cùng một cá nhân tại cùng một thời điểm (Fundamental Problem of Causal Inference)." },
+      { q: "❓ Thử thách 4: Tại sao trong DID có thời điểm nhận can thiệp rải rác (Staggered rollout), TWFE truyền thống lại bị sai?", a: "💡 GIẢI ĐÁP: Vì TWFE ngây thơ sẽ dùng các nhóm đã can thiệp từ trước (Already-treated) làm nhóm đối chứng cho các nhóm can thiệp sau, tạo ra các trọng số âm (Negative weights) làm đảo ngược dấu tác động!" },
+      { q: "❓ Thử thách 5: Tiêu chuẩn Standardized Mean Difference (SMD) sau khi chạy Matching (PSM/CEM) đạt bao nhiêu là tốt?", a: "💡 GIẢI ĐÁP: Trị tuyệt đối |SMD| < 0.1 cho tất cả các biến kiểm soát chứng minh mẫu đã được cân bằng hoàn hảo giữa Treated và Control." }
     ];
     let cardIdx = 0;
     let cardFlipped = false;
@@ -420,18 +716,38 @@
       const activeNode = document.getElementById('node-' + nodeKey);
       if (activeNode) activeNode.classList.add('node-active');
 
-      const data = topicDetails[nodeKey];
+      const data = fullKnowledge[nodeKey];
       if (!data) return;
 
       const panel = document.getElementById('nodeDetailPanel');
-      panel.innerHTML = `
-        <div class="space-y-4">
-          <div class="border-b border-slate-800 pb-3">
-            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">${data.subtitle}</span>
-            <h3 class="text-base font-extrabold text-white mt-1">${data.title}</h3>
-            <p class="text-xs text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800 mt-2">${data.summary}</p>
+      
+      let sectionsHTML = data.sections.map(sec => `
+        <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
+          <h4 class="font-extrabold text-sm text-blue-400 border-b border-slate-800/80 pb-1.5 flex items-center space-x-2">
+            <span>🔹 ${sec.title}</span>
+          </h4>
+          <div class="text-xs text-slate-300 leading-relaxed">
+            ${sec.body}
           </div>
-          <div>${data.content}</div>
+        </div>
+      `).join('');
+
+      panel.innerHTML = `
+        <div class="space-y-4 animate-fadeIn">
+          <div class="border-b border-slate-800 pb-3 space-y-1.5">
+            <div class="flex items-center space-x-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${data.badgeColor}">
+                ${data.tag}
+              </span>
+              <span class="text-xs text-slate-400 font-medium">${data.part}</span>
+            </div>
+            <h3 class="text-base md:text-lg font-extrabold text-white">${data.title}</h3>
+            <p class="text-xs text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800 leading-relaxed">${data.summary}</p>
+          </div>
+
+          <div class="space-y-3">
+            ${sectionsHTML}
+          </div>
         </div>
       `;
 
