@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phương Pháp Nghiên Cứu & Causal Inference - Premium Web Portal</title>
+  <!-- Allowlisted Tailwind CSS -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    /* Glassmorphism styling */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .dark .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    /* Node connections animation */
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+    .active-glow {
+      animation: pulse-glow 3s infinite ease-in-out;
+    }
+
+    /* Smooth tab transition */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
+</head>
+<body class="bg-[var(--background,#0f172a)] text-[var(--foreground,#f8fafc)] min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- HEADER NAVBAR -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-[var(--border,#1e293b)] px-6 py-3.5 flex items-center justify-between shadow-sm">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-blue-500/20">
+        🎓
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-extrabold text-base md:text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+            PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
+          </h1>
+          <span class="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">PRO PORTAL</span>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground,#94a3b8)]">Hệ thống Tri thức & Sơ đồ Tư duy Tương tác Toàn khóa học</p>
+      </div>
+    </div>
+
+    <!-- NAVBAR CONTROLS -->
+    <div class="flex items-center space-x-3">
+      <!-- Search Input -->
+      <div class="relative hidden md:block">
+        <input type="text" id="searchInput" placeholder="🔍 Tìm khái niệm, công thức, bài học..." 
+               class="bg-slate-800/80 text-xs text-slate-200 px-3 py-2 pl-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-700/80 w-64 transition">
+      </div>
+
+      <!-- Domain Deploy Info Button -->
+      <button onclick="toggleDeployModal()" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center space-x-1.5">
+        <span>🌐 Xuất Tên Miền Web (Publish)</span>
+      </button>
+
+      <!-- Print/Download Button -->
+      <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs p-2.5 rounded-xl border border-slate-700 transition" title="In / Lưu thành PDF">
+        🖨️
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="bg-[var(--card,#1e293b)] border-b border-[var(--border,#334155)] px-6 py-2 flex overflow-x-auto space-x-2 text-xs font-semibold scrollbar-none">
+    <button onclick="switchTab('mindmap')" id="tab-btn-mindmap" class="px-4 py-2 rounded-lg transition flex items-center space-x-2 text-white bg-blue-600 shadow-md">
+      <span>🌳 Sơ đồ Tư duy Tương tác</span>
+    </button>
+    <button onclick="switchTab('lessons')" id="tab-btn-lessons" class="px-4 py-2 rounded-lg transition flex items-center space-x-2 text-slate-400 hover:text-white hover:bg-slate-800">
+      <span>📚 Chi tiết 10 Bài học</span>
+    </button>
+    <button onclick="switchTab('decision')" id="tab-btn-decision" class="px-4 py-2 rounded-lg transition flex items-center space-x-2 text-slate-400 hover:text-white hover:bg-slate-800">
+      <span>🗺️ Cây quyết định Chọn Phương pháp</span>
+    </button>
+    <button onclick="switchTab('flashcards')" id="tab-btn-flashcards" class="px-4 py-2 rounded-lg transition flex items-center space-x-2 text-slate-400 hover:text-white hover:bg-slate-800">
+      <span>🎴 Thẻ Thử thách & Flashcards</span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
+
+    <!-- TAB 1: INTERACTIVE VISUAL MINDMAP -->
+    <div id="tab-mindmap" class="tab-content active space-y-6">
+      
+      <!-- MINDMAP CANVAS CARD -->
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+              <span>🌱 MẠNG LƯỚI TƯ DUY CỐT LÕI (INTERACTIVE GRAPH)</span>
+            </h2>
+            <p class="text-xs text-slate-400">Bấm vào bất kỳ nút (node) nào trong sơ đồ bên dưới để mở ngay kiến thức chi tiết!</p>
+          </div>
+          <span class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30">Clickable Nodes</span>
+        </div>
+
+        <!-- VISUAL GRAPH GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
+          
+          <!-- CENTER ROOT -->
+          <div class="md:col-span-12 flex justify-center">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-extrabold text-sm md:text-base px-6 py-3.5 rounded-2xl shadow-xl shadow-blue-500/20 border border-blue-400/30 text-center active-glow">
+              🎯 PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
+            </div>
+          </div>
+
+          <!-- CONNECTOR LINE SVG -->
+          <div class="hidden md:block md:col-span-12 h-6 -my-3">
+            <svg class="w-full h-full stroke-slate-600" fill="none">
+              <path d="M 50% 0 L 25% 100% M 50% 0 L 75% 100%" stroke-width="2" stroke-dasharray="4 4" />
+            </svg>
+          </div>
+
+          <!-- BRANCH 1: PHẦN I -->
+          <div class="md:col-span-6 space-y-3 bg-slate-900/60 p-4 rounded-xl border border-blue-500/30">
+            <div class="flex items-center space-x-2 text-xs font-extrabold text-blue-400 uppercase tracking-wider border-b border-blue-500/20 pb-2">
+              <span>📖 PHẦN I: THỰC HÀNH NGHIÊN CỨU & ĐỀ CƯƠNG</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <button onclick="openModalTopic('bai1')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 1: Giới thiệu NCKH</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">5 Đặc tính & Đạo đức NCKH</div>
+              </button>
+              <button onclick="openModalTopic('bai2')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 2: Vấn đề & SMART</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Research Gap, RQs & ROs</div>
+              </button>
+              <button onclick="openModalTopic('bai3')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 3: Khung Phân Tích</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Literature Review & Khung biến số</div>
+              </button>
+              <button onclick="openModalTopic('bai5')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 5: Quan Hệ Causal</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Internal vs External Validity</div>
+              </button>
+              <button onclick="openModalTopic('bai6')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 6: Chọn Mẫu & Data</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Probability Sampling & Biases</div>
+              </button>
+              <button onclick="openModalTopic('bai7')" class="p-3 bg-slate-800/90 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-blue-300">Bài 7: Viết Đề Cương</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Proposal Structure & APA 7th</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- BRANCH 2: PHẦN II -->
+          <div class="md:col-span-6 space-y-3 bg-slate-900/60 p-4 rounded-xl border border-emerald-500/30">
+            <div class="flex items-center space-x-2 text-xs font-extrabold text-emerald-400 uppercase tracking-wider border-b border-emerald-500/20 pb-2">
+              <span>🔬 PHẦN II: SUY LUẬN NGUYÊN NHÂN (CAUSAL INFERENCE)</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <button onclick="openModalTopic('lec1')" class="p-3 bg-slate-800/90 hover:bg-emerald-600/30 border border-slate-700 hover:border-emerald-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-emerald-300">Lec 1: Hồi Quy OLS</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Potential Outcomes & OVB</div>
+              </button>
+              <button onclick="openModalTopic('lec2')" class="p-3 bg-slate-800/90 hover:bg-emerald-600/30 border border-slate-700 hover:border-emerald-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-emerald-300">Lec 2: Ghép Cặp (Matching)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">PSM, CEM & Common Support</div>
+              </button>
+              <button onclick="openModalTopic('lec3')" class="p-3 bg-slate-800/90 hover:bg-emerald-600/30 border border-slate-700 hover:border-emerald-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-emerald-300">Lec 3: Biến Cố Định (FE)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Panel Data & Demeaning</div>
+              </button>
+              <button onclick="openModalTopic('lec4')" class="p-3 bg-slate-800/90 hover:bg-emerald-600/30 border border-slate-700 hover:border-emerald-400 text-left rounded-xl transition text-slate-200">
+                <div class="font-bold text-emerald-300">Lec 4: Diff-in-Diffs (DID)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Parallel Trends & Staggered</div>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 2: DETAILED LESSONS -->
+    <div id="tab-lessons" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        <!-- SIDEBAR SELECTOR -->
+        <div class="md:col-span-4 bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-2xl p-4 space-y-2">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 pb-2 border-b border-slate-700">Chọn bài học</div>
+          <div class="space-y-1 text-xs" id="lessonListButtons">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- MAIN DETAIL VIEW -->
+        <div class="md:col-span-8 bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-2xl p-6 space-y-4" id="lessonDetailView">
+          <!-- Rendered dynamically -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: DECISION TREE -->
+    <div id="tab-decision" class="tab-content space-y-6">
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-2xl p-6 space-y-6">
+        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+          <span>🌳 CÂY QUYẾT ĐỊNH CHỌN PHƯƠNG PHÁP ĐỊNH LƯỢNG</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          
+          <div class="p-4 bg-slate-900/80 rounded-xl border border-blue-500/30 space-y-2">
+            <h3 class="font-bold text-blue-400 text-sm">1. DỮ LIỆU CẮT NGANG (CROSS-SECTIONAL)</h3>
+            <p class="text-slate-300">• <strong>Đủ biến quan sát Z:</strong> Dùng <span class="text-blue-300 font-bold">Hồi quy OLS + Controls</span> hoặc <span class="text-blue-300 font-bold">Ghép cặp (Matching / PSM / CEM)</span>.</p>
+            <p class="text-slate-300">• <strong>Sợ có biến nhiễu ẩn không đo lường được:</strong> OLS & Matching sẽ bị bias! Cần chuyển sang <span class="text-amber-300 font-bold">Biến công cụ (IV)</span> hoặc <span class="text-amber-300 font-bold">RDD</span>.</p>
+          </div>
+
+          <div class="p-4 bg-slate-900/80 rounded-xl border border-emerald-500/30 space-y-2">
+            <h3 class="font-bold text-emerald-400 text-sm">2. DỮ LIỆU BẢNG (PANEL DATA)</h3>
+            <p class="text-slate-300">• <strong>Muốn triệt tiêu đặc tính ẩn cố định của đơn vị (α_i):</strong> Dùng <span class="text-emerald-300 font-bold">Biến cố định (Fixed Effects - FE / TWFE)</span>.</p>
+            <p class="text-slate-300">• <strong>Có sự kiện chính sách di chuyển trước - sau:</strong> Dùng <span class="text-emerald-300 font-bold">Difference-in-Differences (DID)</span>. Kiểm tra giả định Xu hướng song song bằng <span class="text-amber-300 font-bold">Event Study</span>!</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: FLASHCARDS -->
+    <div id="tab-flashcards" class="tab-content space-y-6">
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-2xl p-6 space-y-6 text-center">
+        <h2 class="text-xl font-bold text-white">🎴 ÔN TẬP NHANH BẰNG FLASHCARDS</h2>
+        <p class="text-xs text-slate-400">Nhấp vào thẻ bên dưới để lật xem đáp án!</p>
+
+        <div onclick="flipFlashcard()" id="flashcardBox" class="w-full max-w-md mx-auto h-56 bg-gradient-to-tr from-blue-900 to-indigo-800 rounded-2xl border border-blue-500/40 p-6 flex items-center justify-center cursor-pointer shadow-2xl transition transform hover:scale-105">
+          <div id="flashcardText" class="text-sm font-bold text-white leading-relaxed">
+            ❓ Thử thách 1: Giả định cốt lõi tối cao của phương pháp Difference-in-Differences (DID) là gì?
+          </div>
+        </div>
+
+        <div class="flex justify-center space-x-3">
+          <button onclick="prevFlashcard()" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl hover:bg-slate-700">◀ Câu trước</button>
+          <button onclick="nextFlashcard()" class="px-4 py-2 bg-blue-600 text-white text-xs rounded-xl font-semibold hover:bg-blue-500">Câu tiếp theo ▶</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DEPLOY INSTRUCTIONS FOR DOMAIN PUBLISHING -->
+  <div id="deployModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 text-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-lg text-emerald-400 flex items-center space-x-2">
+          <span>🌐 HƯỚNG DẪN XUẤT WEBSITE LÊN TÊN MIỀN CÔNG KHAI (FREE 1 phút)</span>
+        </h3>
+        <button onclick="toggleDeployModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <p>Để xuất trang web này lên một **Tên miền công khai (Live Public Domain)** cho người khác mở xem bất cứ đâu, bạn có thể thực hiện theo 1 trong các cách cực nhanh sau:</p>
+        
+        <div class="p-3 bg-slate-800/90 rounded-xl border border-slate-700 space-y-1">
+          <span class="font-bold text-blue-400">Cách 1: Đăng lên Tiiny.host / Surge (Không cần code, 30 giây)</span>
+          <ol class="list-decimal pl-4 space-y-1 text-slate-300">
+            <li>Tải tệp HTML này về máy (hoặc lưu thành <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">index.html</code>).</li>
+            <li>Kéo thả tệp <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">index.html</code> vào trang web <a href="https://tiiny.host" target="_blank" class="text-blue-400 underline font-bold">tiiny.host</a> hoặc <a href="https://netlify.com/drop" target="_blank" class="text-blue-400 underline font-bold">Netlify Drop</a>.</li>
+            <li>Nhập tên miền mong muốn (ví dụ: <code class="text-emerald-400">ppnc-causal-inference.tiiny.site</code>) ➔ Bấm Publish!</li>
+          </ol>
+        </div>
+
+        <div class="p-3 bg-slate-800/90 rounded-xl border border-slate-700 space-y-1">
+          <span class="font-bold text-purple-400">Cách 2: Đăng qua Vercel / GitHub Pages</span>
+          <p>Tải tệp HTML này lên một Repository GitHub, sau đó kết nối Vercel hoặc bật GitHub Pages để nhận tên miền dạng <code class="text-purple-300">https://yourname.github.io/ppnc-mindmap</code> hoàn toàn miễn phí!</p>
+        </div>
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="toggleDeployModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT KNOWLEDGE BASE & LOGIC -->
+  <script>
+    const lessonsData = {
+      'bai1': {
+        title: "Bài 1: Giới thiệu NCKH & Đạo đức Nghiên cứu",
+        summary: "Bản chất NCKH, 5 đặc tính cốt lõi và các quy chuẩn đạo đức phòng chống đạo văn (Plagiarism).",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-blue-400">1. 5 Đặc tính cốt lõi của NCKH</h4>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><strong>Tính mục đích:</strong> Trả lời câu hỏi nghiên cứu cụ thể.</li>
+              <li><strong>Tính hệ thống:</strong> Thực hiện theo quy trình logic.</li>
+              <li><strong>Tính kiểm chứng:</strong> Đo lường và kiểm tra được bằng dữ liệu.</li>
+              <li><strong>Tính khách quan:</strong> Loại bỏ thiên vị cảm tính.</li>
+              <li><strong>Tính mới (Originality):</strong> Đóng góp thêm tri thức mới.</li>
+            </ul>
+            <h4 class="font-bold text-sm text-amber-400">2. Đạo đức NCKH</h4>
+            <p>Tuyệt đối không bịa đặt dữ liệu (Falsification/Fabrication) và tuân thủ trích dẫn chuẩn APA 7th để chống đạo văn.</p>
+          </div>
+        `
+      },
+      'bai2': {
+        title: "Bài 2: Vấn đề Nghiên cứu, Câu hỏi RQs & ROs",
+        summary: "Xác định Khe hổng nghiên cứu (Research Gap) và thiết lập mục tiêu tiêu chuẩn SMART.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-blue-400">1. Nhận diện Research Gap</h4>
+            <p>• <strong>Practical Gap:</strong> Vấn đề thực tế chưa có lời giải.</p>
+            <p>• <strong>Theoretical Gap:</strong> Lý thuyết chưa giải thích được bối cảnh mới.</p>
+            <p>• <strong>Empirical Gap:</strong> Kết quả thực nghiệm mâu thuẫn.</p>
+            <h4 class="font-bold text-sm text-emerald-400">2. Mục tiêu SMART</h4>
+            <p>Specific (Cụ thể), Measurable (Đo lường được), Achievable (Khả thi), Relevant (Phù hợp), Time-bound (Có thời hạn).</p>
+          </div>
+        `
+      },
+      'bai3': {
+        title: "Bài 3: Tổng quan Lý thuyết & Khung Phân tích",
+        summary: "Phương pháp tổng quan tài liệu, sơ đồ hóa khung phân tích và phát biểu các giả thuyết.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-blue-400">Khung Phân tích & Giả thuyết</h4>
+            <p>Sơ đồ hóa mối quan hệ giữa Biến Độc lập (X), Biến Phụ thuộc (Y), Biến Trung gian (M), Biến Điều tiết (W) và Biến Kiểm soát (Z).</p>
+          </div>
+        `
+      },
+      'bai5': {
+        title: "Bài 5: Thiết kế Nghiên cứu & Bản chất Quan hệ Causal",
+        summary: "3 điều kiện kết luận Causal Relationship và Internal vs External Validity.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-emerald-400">3 Điều kiện Nhân - Quả (Causality)</h4>
+            <ol class="list-decimal pl-5 space-y-1">
+              <li>Có mối tương quan thống kê giữa X và Y.</li>
+              <li>X xảy ra trước Y về mặt thời gian.</li>
+              <li>Loại trừ được mọi nguyên nhân thay thế (không bị biến nhiễu gây tương quan giả).</li>
+            </ol>
+          </div>
+        `
+      },
+      'bai6': {
+        title: "Bài 6: Thu thập Thông tin, Chọn mẫu & Quản lý Dữ liệu",
+        summary: "Phân biệt kỹ thuật chọn mẫu xác suất/phi xác suất và làm sạch dữ liệu.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-blue-400">Phương pháp Chọn mẫu</h4>
+            <p>• <strong>Xác suất:</strong> Ngẫu nhiên đơn, Phân tầng (Stratified), Cụm (Cluster).</p>
+            <p>• <strong>Phi xác suất:</strong> Thuận tiện (Convenience), Chủ đích (Purposive), Tuyết lăn (Snowball).</p>
+          </div>
+        `
+      },
+      'bai7': {
+        title: "Bài 7: Viết Đề cương & Báo cáo NCKH",
+        summary: "Cấu trúc đề cương nghiên cứu tiêu chuẩn (Proposal) và trích dẫn chuẩn mực.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-purple-400">Cấu trúc Đề cương Proposal</h4>
+            <p>Chương 1: Giới thiệu ➔ Chương 2: Tổng quan Lý thuyết ➔ Chương 3: Phương pháp Nghiên cứu ➔ Kế hoạch thực hiện.</p>
+          </div>
+        `
+      },
+      'lec1': {
+        title: "Chương 1: Hồi quy OLS & Biến kiểm soát (Regression & Controls)",
+        summary: "Khung Phản thực (Potential Outcomes), Tiêu chí Cửa sau và OVB.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-emerald-400">Potential Outcomes & OVB</h4>
+            <p>Mô hình OLS: <code class="text-blue-300 font-mono">Y = β0 + β1*X + γ*Z + ε</code></p>
+            <p>Đưa tập biến kiểm soát Z vào để đóng đường cửa sau X ⬅️ A ➡️ Y, triệt tiêu Sai lệch biến bị bỏ sót (OVB).</p>
+          </div>
+        `
+      },
+      'lec2': {
+        title: "Chương 2: Phương pháp Ghép cặp (Matching Methods)",
+        summary: "PSM, CEM và kiểm định cân bằng Balance Test.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-emerald-400">PSM & CEM</h4>
+            <p>Giả định cốt lõi: Selection on Observables (Unconfoundedness) và Common Support.</p>
+          </div>
+        `
+      },
+      'lec3': {
+        title: "Chương 3: Phương pháp Biến cố định (Fixed Effects - FE)",
+        summary: "Panel Data & Demeaning (Within Transformation).",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-emerald-400">Panel Data FE & Demeaning</h4>
+            <p>Triệt tiêu biến nhiễu KHÔNG QUAN SÁT ĐƯỢC nhưng CỐ ĐỊNH theo thời gian (α_i).</p>
+          </div>
+        `
+      },
+      'lec4': {
+        title: "Chương 4: Khác biệt trong Khác biệt (Difference-in-Differences - DID)",
+        summary: "4 Cell Means, Parallel Trends Assumption và Event Study.",
+        details: `
+          <div class="space-y-4 text-xs text-slate-300">
+            <h4 class="font-bold text-sm text-emerald-400">DID & Parallel Trends</h4>
+            <p>Công thức: <code class="text-amber-300 font-mono">δ_DID = (Y_T,post - Y_T,pre) - (Y_C,post - Y_C,pre)</code></p>
+          </div>
+        `
+      }
+    };
+
+    // FLASHCARDS DATA
+    const flashcards = [
+      { q: "❓ Thử thách 1: Giả định cốt lõi tối cao của phương pháp Difference-in-Differences (DID) là gì?", a: "💡 GIẢI ĐÁP: Giả định Xu hướng Song song (Parallel Trends Assumption) – Nếu không có chính sách, xu hướng di chuyển của nhóm Treated sẽ hoàn toàn song song với nhóm Control." },
+      { q: "❓ Thử thách 2: Phương pháp Fixed Effects (FE) loại bỏ được loại biến nhiễu nào mà OLS thường bó tay?", a: "💡 GIẢI ĐÁP: Các biến nhiễu KHÔNG QUAN SÁT ĐƯỢC nhưng CỐ ĐỊNH theo thời gian (Time-invariant unobserved confounders như gen, vị trí địa lý, văn hóa)." },
+      { q: "❓ Thử thách 3: Khung Phản thực (Counterfactual / Potential Outcomes) có vấn đề cốt lõi nào?", a: "💡 GIẢI ĐÁP: Không bao giờ quan sát được đồng thời cả Y(1) và Y(0) trên cùng một cá nhân tại cùng một thời điểm." }
+    ];
+    let currentFlashcardIndex = 0;
+    let isFlipped = false;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById('tab-' + tabId).classList.add('active');
+      const activeBtn = document.getElementById('tab-btn-' + tabId);
+      activeBtn.classList.remove('text-slate-400');
+      activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+
+      if (tabId === 'lessons') {
+        renderLessonList();
+      }
+    }
+
+    function renderLessonList() {
+      const btnList = document.getElementById('lessonListButtons');
+      let html = '';
+      for (let key in lessonsData) {
+        html += `
+          <button onclick="showLessonDetail('${key}')" class="w-full text-left p-2.5 rounded-xl border border-slate-700/60 bg-slate-800/40 hover:bg-slate-700/60 transition text-slate-200">
+            ${lessonsData[key].title}
+          </button>
+        `;
+      }
+      btnList.innerHTML = html;
+      showLessonDetail('bai1');
+    }
+
+    function showLessonDetail(key) {
+      const item = lessonsData[key];
+      const view = document.getElementById('lessonDetailView');
+      view.innerHTML = `
+        <h3 class="text-lg font-bold text-white">${item.title}</h3>
+        <p class="text-xs text-slate-400 bg-slate-800/60 p-3 rounded-xl border border-slate-700">${item.summary}</p>
+        <div>${item.details}</div>
+      `;
+    }
+
+    function openModalTopic(key) {
+      switchTab('lessons');
+      showLessonDetail(key);
+    }
+
+    function toggleDeployModal() {
+      document.getElementById('deployModal').classList.toggle('hidden');
+    }
+
+    function flipFlashcard() {
+      const box = document.getElementById('flashcardText');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        box.innerText = flashcards[currentFlashcardIndex].a;
+        box.classList.add('text-amber-300');
+      } else {
+        box.innerText = flashcards[currentFlashcardIndex].q;
+        box.classList.remove('text-amber-300');
+      }
+    }
+
+    function nextFlashcard() {
+      currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcards.length;
+      isFlipped = false;
+      document.getElementById('flashcardText').innerText = flashcards[currentFlashcardIndex].q;
+      document.getElementById('flashcardText').classList.remove('text-amber-300');
+    }
+
+    function prevFlashcard() {
+      currentFlashcardIndex = (currentFlashcardIndex - 1 + flashcards.length) % flashcards.length;
+      isFlipped = false;
+      document.getElementById('flashcardText').innerText = flashcards[currentFlashcardIndex].q;
+      document.getElementById('flashcardText').classList.remove('text-amber-300');
+    }
+  </script>
+</body>
+</html>
