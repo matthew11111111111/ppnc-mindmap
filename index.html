@@ -1018,6 +1018,81 @@ let nodeCoordinates = {};
       drawCrossTopicBridges(crossLayer);
     }
 
+
+    // DRAW CROSS-TOPIC METHODOLOGICAL BRIDGES (SỰ LIÊN KẾT LIÊN BÀI VÀ NỀN TẢNG)
+    function drawCrossTopicBridges(layer) {
+      if (!layer) return;
+      layer.innerHTML = "";
+      if (!showBridges) return;
+
+      crossTopicBridges.forEach((bridge, idx) => {
+        const fromNode = nodeCoordinates[bridge.from];
+        const toNode = nodeCoordinates[bridge.to];
+        if (!fromNode || !toNode) return;
+
+        // Draw graceful organic dashed curve between nodes
+        const dx = toNode.x - fromNode.x;
+        const dy = toNode.y - fromNode.y;
+        const cx1 = fromNode.x + dx * 0.25;
+        const cy1 = fromNode.y + dy * 0.85 + (idx % 2 === 0 ? 35 : -35);
+        const cx2 = fromNode.x + dx * 0.75;
+        const cy2 = toNode.y - dy * 0.25;
+
+        const pathStr = `M ${fromNode.x} ${fromNode.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${toNode.x} ${toNode.y}`;
+
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "cursor-pointer group");
+        g.onclick = (e) => {
+          e.stopPropagation();
+          openNodeDetail(bridge.to);
+        };
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathStr);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", bridge.color || "#f59e0b");
+        path.setAttribute("stroke-width", "2.2");
+        path.setAttribute("class", "cross-link-path");
+        path.setAttribute("marker-end", `url(#${bridge.marker || 'arrow-gold'})`);
+        path.setAttribute("opacity", "0.75");
+
+        // Interactive badge along the bridge curve
+        const midX = (fromNode.x + toNode.x) / 2;
+        const midY = (fromNode.y + toNode.y) / 2 + (idx % 2 === 0 ? 25 : -25);
+        const labelW = bridge.label.length * 6.5 + 24;
+
+        const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        bg.setAttribute("x", midX - labelW / 2);
+        bg.setAttribute("y", midY - 11);
+        bg.setAttribute("width", labelW);
+        bg.setAttribute("height", 22);
+        bg.setAttribute("rx", 7);
+        bg.setAttribute("fill", "#090d16");
+        bg.setAttribute("stroke", bridge.color || "#f59e0b");
+        bg.setAttribute("stroke-width", "1.2");
+        bg.setAttribute("class", "shadow-lg");
+
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("x", midX);
+        txt.setAttribute("y", midY + 4);
+        txt.setAttribute("fill", bridge.color || "#fbbf24");
+        txt.setAttribute("font-size", "9.5");
+        txt.setAttribute("font-weight", "700");
+        txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("font-family", "'Plus Jakarta Sans', sans-serif");
+        txt.textContent = "⚡ " + bridge.label;
+
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = bridge.desc;
+
+        g.appendChild(path);
+        g.appendChild(bg);
+        g.appendChild(txt);
+        g.appendChild(title);
+        layer.appendChild(g);
+      });
+    }
+
     function drawHierarchy(node, linksLayer, nodesLayer) {
       if (node.children) {
         node.children.forEach(child => {
@@ -1085,14 +1160,20 @@ let nodeCoordinates = {};
           <text x="${circleX}" y="5" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
         `;
       } else if (node.isLeaf) {
-        // Individual leaf node - beautifully styled pill with organic look
-        const textW = Math.min(node.name.length * 6.5 + 28, 360);
+        // Individual leaf node - beautifully styled organic leaf pill
+        const textW = Math.min(node.name.length * 6.8 + 36, 420);
         const rectX = (node.dir === -1) ? -textW : 0;
-        const textX = (node.dir === -1) ? -textW + 14 : 14;
+        const textX = (node.dir === -1) ? -textW + 18 : 18;
+        const isActive = activeNodeId === node.id;
         g.innerHTML = `
-          <rect x="${rectX}" y="-16" width="${textW}" height="32" rx="12" fill="#090d16" stroke="${node.color || '#334155'}" stroke-width="1.3" />
-          <circle cx="${node.dir === -1 ? -textW + 8 : 8}" cy="0" r="3.5" fill="${node.color || '#38bdf8'}" />
-          <text x="${textX + 6}" y="4.5" fill="#cbd5e1" font-size="10.5" font-weight="500" font-family="'Plus Jakarta Sans', sans-serif">
+          <rect x="${rectX}" y="-16" width="${textW}" height="32" rx="14" 
+                fill="${isActive ? '#065f46' : '#090d16'}" 
+                stroke="${isActive ? '#34d399' : (node.color || '#334155')}" 
+                stroke-width="${isActive ? '2.4' : '1.3'}" 
+                class="transition-all hover:stroke-emerald-400" />
+          <path d="${node.dir === -1 ? `M ${-textW + 10} 0 Q ${-textW + 6} -4, ${-textW + 10} -7 Q ${-textW + 14} -4, ${-textW + 10} 0` : `M 10 0 Q 6 -4, 10 -7 Q 14 -4, 10 0`}" fill="#10b981" />
+          <circle cx="${node.dir === -1 ? -textW + 10 : 10}" cy="0" r="3.5" fill="${node.color || '#38bdf8'}" />
+          <text x="${textX + 6}" y="4.5" fill="${isActive ? '#ffffff' : '#cbd5e1'}" font-size="10.5" font-weight="${isActive ? '700' : '500'}" font-family="'Plus Jakarta Sans', sans-serif">
             ${node.name}
           </text>
         `;
@@ -1121,6 +1202,7 @@ let nodeCoordinates = {};
     
 
     function handleNodeClick(node) {
+      // If clicking directly on collapse button or node with children, toggle collapse
       if (node.raw && node.raw.children && node.raw.children.length > 0) {
         if (collapsedNodes.has(node.id)) {
           collapsedNodes.delete(node.id);
@@ -1130,7 +1212,8 @@ let nodeCoordinates = {};
         renderMindmapGraph();
       }
 
-      if (node.raw && (node.raw.details || node.raw.summary || node.raw.desc)) {
+      // Always open knowledge drawer for any node (root, branch, lesson, or leaf)
+      if (node.id) {
         openNodeDetail(node.id);
       }
     }
@@ -1184,25 +1267,53 @@ let nodeCoordinates = {};
         `;
       }
 
-      const contentBox = document.getElementById("drawer-content");
+            const contentBox = document.getElementById("drawer-content");
+      let nodeBodyHtml = targetNode.details;
+      if (!nodeBodyHtml) {
+        // Intelligent rich view for leaf sub-topics
+        nodeBodyHtml = `
+          <div class="space-y-4 text-xs">
+            <div class="p-4 bg-gradient-to-br from-emerald-950/40 via-slate-950 to-blue-950/40 rounded-xl border border-emerald-500/40 space-y-2.5">
+              <div class="flex items-center space-x-2">
+                <span class="text-base">🌿</span>
+                <strong class="text-emerald-300 text-sm font-black">NỘI DUNG TRỌNG TÂM: ${targetNode.name}</strong>
+              </div>
+              <p class="text-slate-300 leading-relaxed font-sans">
+                Đây là một nhánh chuyên sâu thuộc bài học <strong>${parentTitle}</strong>. Nhánh này tóm lược quy tắc thực nghiệm và lý thuyết cốt lõi được giảng dạy trong slide chính khóa.
+              </p>
+            </div>
+            
+            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-slate-300">
+              <strong class="text-blue-400 text-xs uppercase block font-bold">📖 Hướng Dẫn Nghiên Cứu Thực Hành:</strong>
+              <ul class="list-disc pl-4 space-y-1.5 leading-relaxed text-slate-300">
+                <li>Đối chiếu kỹ với mô hình nghiên cứu và phương pháp phân tích trong đề cương/luận văn.</li>
+                <li>Kiểm tra các giả định mô hình và hạn chế phương pháp để tránh bẫy nội sinh (Endogeneity) hoặc sai lệch mẫu.</li>
+                <li>Xem bài học tổng quan bằng cách nhấn vào nút bài học cha trên bản đồ tư duy.</li>
+              </ul>
+            </div>
+          </div>
+        `;
+      }
       contentBox.innerHTML = `
         <div class="space-y-4 animate-fadeIn">
           <div>
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-950 text-emerald-300 border border-emerald-700/60">
+                ${parentTitle ? "🌿 Nhánh Thuộc: " + parentTitle : "🌳 Cây Tri Thức"}
+              </span>
+            </div>
             <h2 class="text-lg md:text-xl font-black text-white leading-tight">${targetNode.name}</h2>
             <p class="text-xs text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800 mt-2.5 leading-relaxed">
-              ${targetNode.summary || targetNode.desc || "Chi tiết chuyên sâu từ bài giảng."}
+              ${targetNode.summary || targetNode.desc || "Khái niệm và quy tắc trọng tâm từ slide bài giảng chính khóa."}
             </p>
           </div>
 
           <div>
             ${bridgeHtml}
+          </div>
 
           <div>
-            ${targetNode.details || `
-              <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400">
-                Nhấp vào các nút bài học con để xem toàn bộ lý thuyết và công thức toán học!
-              </div>
-            `}
+            ${nodeBodyHtml}
           </div>
         </div>
       `;
@@ -1259,15 +1370,19 @@ let nodeCoordinates = {};
       renderMindmapGraph();
     }
 
-    // PAN & ZOOM HANDLING
+    // PAN & ZOOM HANDLING WITH ZOOM-TO-POINTER AND TOUCH SUPPORT
     function setupPanZoomEvents() {
       const viewport = document.getElementById("mindmap-viewport");
       const content = document.getElementById("mindmap-content");
 
+      // Mouse Dragging
       viewport.addEventListener("mousedown", (e) => {
+        // Only left click or middle click
+        if (e.button !== 0 && e.button !== 1) return;
         isDragging = true;
         startX = e.clientX - panX;
         startY = e.clientY - panY;
+        viewport.style.cursor = "grabbing";
       });
 
       window.addEventListener("mousemove", (e) => {
@@ -1278,22 +1393,85 @@ let nodeCoordinates = {};
       });
 
       window.addEventListener("mouseup", () => {
+        if (isDragging) {
+          isDragging = false;
+          viewport.style.cursor = "grab";
+        }
+      });
+
+      // Mouse Wheel Zoom (Pinch-to-zoom & Wheel) centered on cursor
+      viewport.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+        const newZoom = Math.max(0.25, Math.min(3.0, zoomLevel * zoomFactor));
+
+        if (newZoom !== zoomLevel) {
+          // Adjust pan so the point under cursor remains stationary
+          panX = mouseX - (mouseX - panX) * (newZoom / zoomLevel);
+          panY = mouseY - (mouseY - panY) * (newZoom / zoomLevel);
+          zoomLevel = newZoom;
+          updateTransform();
+        }
+      }, { passive: false });
+
+      // Touch gestures for mobile/tablets
+      let touchStartDist = 0;
+      let initialZoom = 1;
+      viewport.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX - panX;
+          startY = e.touches[0].clientY - panY;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialZoom = zoomLevel;
+        }
+      }, { passive: false });
+
+      viewport.addEventListener("touchmove", (e) => {
+        if (isDragging && e.touches.length === 1) {
+          panX = e.touches[0].clientX - startX;
+          panY = e.touches[0].clientY - startY;
+          updateTransform();
+        } else if (e.touches.length === 2 && touchStartDist > 0) {
+          e.preventDefault();
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          zoomLevel = Math.max(0.25, Math.min(3.0, initialZoom * (dist / touchStartDist)));
+          updateTransform();
+        }
+      }, { passive: false });
+
+      viewport.addEventListener("touchend", () => {
         isDragging = false;
       });
 
-      viewport.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.08 : 0.92;
-        zoomMindmap(factor);
-      }, { passive: false });
-
       window.addEventListener("resize", () => {
-        // keep centered if desired
+        // Maintain center if initial load
       });
     }
 
     function zoomMindmap(factor) {
-      zoomLevel = Math.max(0.35, Math.min(2.5, zoomLevel * factor));
+      const container = document.getElementById("canvas-container");
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || (window.innerHeight - 56);
+      const cx = w / 2;
+      const cy = h / 2;
+
+      const newZoom = Math.max(0.25, Math.min(3.0, zoomLevel * factor));
+      panX = cx - (cx - panX) * (newZoom / zoomLevel);
+      panY = cy - (cy - panY) * (newZoom / zoomLevel);
+      zoomLevel = newZoom;
       updateTransform();
     }
 
