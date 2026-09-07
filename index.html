@@ -42,6 +42,16 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+    .cross-link-path {
+      stroke-dasharray: 8 6;
+      animation: dashFlow 2.5s linear infinite;
+    }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -105,6 +115,12 @@
         <button onclick="zoomMindmap(0.85)" class="p-1.5 hover:bg-slate-700 rounded text-slate-300 hover:text-white font-bold" title="Thu nhỏ">−</button>
       </div>
 
+      
+      <!-- Toggle Bridges Button -->
+      <button onclick="toggleBridges()" id="btn-toggle-bridges" class="px-3 py-1.5 bg-amber-950/80 hover:bg-amber-900/90 text-amber-300 rounded-lg text-xs font-bold border border-amber-600/50 transition flex items-center space-x-1 shadow-sm">
+        <span>🔗 Ẩn / Hiện Cầu Nối</span>
+      </button>
+
       <!-- Expand/Collapse All -->
       <button onclick="toggleAllBranches()" id="btn-toggle-all" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 transition">
         Thu gọn cành
@@ -128,6 +144,27 @@
       <!-- SVG Viewport -->
       <svg id="mindmap-viewport" class="w-full h-full absolute inset-0">
         <g id="mindmap-content" transform="translate(100, 360) scale(0.95)">
+    <!-- SVG Definitions: Gradients & Arrow Markers -->
+    <defs>
+      <linearGradient id="rootGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#1d4ed8" />
+        <stop offset="50%" stop-color="#3730a3" />
+        <stop offset="100%" stop-color="#7c3aed" />
+      </linearGradient>
+
+      <!-- Arrowheads for cross-connections -->
+      <marker id="arrow-gold" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+      </marker>
+      <marker id="arrow-cyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#06b6d4" />
+      </marker>
+      <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
+      </marker>
+    </defs>
+
+          <g id="cross-links-layer"></g>
           <g id="links-layer"></g>
           <g id="nodes-layer"></g>
         </g>
@@ -607,13 +644,28 @@
 
     
     // MINDMAP RENDERER WITH TWO-SIDED SYMMETRIC TREE
-    let zoomLevel = 0.52;
+    let zoomLevel = 0.44;
     let panX = 0;
     let panY = 0;
     let isDragging = false;
     let startX, startY;
     let activeNodeId = null;
     let allCollapsed = false;
+
+    let showBridges = true;
+
+    function toggleBridges() {
+      showBridges = !showBridges;
+      const layer = document.getElementById("cross-links-layer");
+      const btn = document.getElementById("btn-toggle-bridges");
+      if (layer) {
+        layer.style.display = showBridges ? "block" : "none";
+      }
+      if (btn) {
+        btn.classList.toggle("opacity-50", !showBridges);
+      }
+    }
+
 
     // Track collapsed nodes
     const collapsedNodes = new Set();
@@ -624,7 +676,7 @@
       const h = container.clientHeight || (window.innerHeight - 56) || 700;
       panX = Math.round(w / 2);
       panY = Math.round(h / 2);
-      zoomLevel = (w < 1100) ? 0.45 : 0.52;
+      zoomLevel = (w < 1200) ? 0.36 : 0.44;
 
       updateTransform();
       renderMindmapGraph();
@@ -632,11 +684,69 @@
       closeSidebar();
     }
 
+    
+    // CROSS-TOPIC METHODOLOGICAL BRIDGES (SỰ LIÊN KẾT LIÊN BÀI VÀ NỀN TẢNG)
+    const crossTopicBridges = [
+      {
+        from: "b7",
+        to: "lec1",
+        label: "Đề cương Ch.3 ➔ Thực thi OLS",
+        desc: "Chương 3 Đề cương (Bài 7) thiết lập mô hình hồi quy thực nghiệm OLS (Chương 1)",
+        color: "#f59e0b",
+        marker: "arrow-gold"
+      },
+      {
+        from: "b5",
+        to: "lec1",
+        label: "3 Đ/k Causal ➔ Tiêu chí Cửa sau",
+        desc: "Bài 5 đặt ra 3 điều kiện Causal ➔ OLS Lec 1 dùng Backdoor Criterion để triệt tiêu biến nhiễu",
+        color: "#06b6d4",
+        marker: "arrow-cyan"
+      },
+      {
+        from: "b3",
+        to: "lec1",
+        label: "Biến X,Y,Z ➔ Khung OLS & OVB",
+        desc: "Khung biến số X, Y, Control Z (Bài 3) định hình phương trình hồi quy và phân tích OVB (Lec 1)",
+        color: "#c084fc",
+        marker: "arrow-purple"
+      },
+      {
+        from: "b6",
+        to: "lec3",
+        label: "Dữ liệu bảng ➔ Fixed Effects (TWFE)",
+        desc: "Dữ liệu bảng theo thời gian thu thập ở Bài 6 là điều kiện bắt buộc để chạy mô hình FE (Lec 3)",
+        color: "#10b981",
+        marker: "arrow-cyan"
+      },
+      {
+        from: "lec1",
+        to: "lec2",
+        label: "Đóng cửa sau: Tham số OLS ➔ Phi tham số Matching",
+        desc: "Khi OLS tuyến tính bị đe dọa hàm phi tuyến ➔ Dùng Matching để cân bằng mẫu Treated & Control",
+        color: "#38bdf8",
+        marker: "arrow-cyan"
+      },
+      {
+        from: "lec3",
+        to: "lec4",
+        label: "TWFE ➔ Khác biệt trong khác biệt (DID)",
+        desc: "Mô hình DID thực chất là Two-Way Fixed Effects có thêm biến tương tác chính sách Treated * Post",
+        color: "#f59e0b",
+        marker: "arrow-gold"
+      }
+    ];
+
+let nodeCoordinates = {};
+
     function renderMindmapGraph() {
       const linksLayer = document.getElementById("links-layer");
+      const crossLayer = document.getElementById("cross-links-layer");
       const nodesLayer = document.getElementById("nodes-layer");
       linksLayer.innerHTML = "";
+      if (crossLayer) crossLayer.innerHTML = "";
       nodesLayer.innerHTML = "";
+      nodeCoordinates = {};
 
       // Layout coordinate tree (Center Root)
       const layoutData = {
@@ -650,12 +760,18 @@
         isRoot: true,
         children: []
       };
+      nodeCoordinates["root"] = { x: 0, y: 0, raw: mindmapData };
 
-      // Branch 1 (Phần I) on LEFT (dir = -1), Branch 2 (Phần II) on RIGHT (dir = 1)
+      // SPACING ENHANCEMENTS:
+      // Branch distance from root: 540px (was 420)
+      // Lessons distance from branch: 420px (was 330)
+      // Subnodes distance from lessons: 380px (was 300)
+      // Vertical spacing between lessons: 105px (Phần I) and 145px (Phần II)
+      // Vertical spacing between subnodes: 42px (was 32)
       mindmapData.children.forEach((branch, bIdx) => {
         const isLeft = (bIdx === 0);
         const dir = isLeft ? -1 : 1;
-        const branchX = dir * 420;
+        const branchX = dir * 540;
         const branchY = 0;
 
         const branchLayout = {
@@ -670,15 +786,15 @@
           isBranch: true,
           children: []
         };
+        nodeCoordinates[branch.id] = { x: branchX, y: branchY, raw: branch };
 
         if (!collapsedNodes.has(branch.id)) {
           const numLessons = branch.children.length;
-          // Vertical spread for lessons
-          const lessonSpacing = isLeft ? 68 : 98;
+          const lessonSpacing = isLeft ? 102 : 145;
           const startLessonY = -((numLessons - 1) * lessonSpacing) / 2;
 
           branch.children.forEach((lesson, lIdx) => {
-            const lessonX = branchX + dir * 330;
+            const lessonX = branchX + dir * 420;
             const lessonY = startLessonY + lIdx * lessonSpacing;
 
             const lessonLayout = {
@@ -692,22 +808,26 @@
               dir: dir,
               children: []
             };
+            nodeCoordinates[lesson.id] = { x: lessonX, y: lessonY, raw: lesson, dir: dir };
 
             if (!collapsedNodes.has(lesson.id) && lesson.children) {
               const numSubs = lesson.children.length;
-              const subSpacing = 32;
+              const subSpacing = 42;
               const startSubY = lessonY - ((numSubs - 1) * subSpacing) / 2;
 
               lesson.children.forEach((sub, sIdx) => {
+                const subX = lessonX + dir * 380;
+                const subY = startSubY + sIdx * subSpacing;
                 lessonLayout.children.push({
                   id: sub.id,
                   name: sub.name,
                   raw: sub,
-                  x: lessonX + dir * 300,
-                  y: startSubY + sIdx * subSpacing,
+                  x: subX,
+                  y: subY,
                   dir: dir,
                   isLeaf: true
                 });
+                nodeCoordinates[sub.id] = { x: subX, y: subY, raw: sub, dir: dir, isLeaf: true };
               });
             }
 
@@ -719,6 +839,49 @@
       });
 
       drawHierarchy(layoutData, linksLayer, nodesLayer);
+      drawCrossTopicBridges(crossLayer);
+    }
+
+    // DRAW METHODOLOGICAL CROSS-LINKS (SỰ LIÊN HỆ GIỮA CÁC PHẦN)
+    function drawCrossTopicBridges(layer) {
+      if (!layer) return;
+      crossTopicBridges.forEach(bridge => {
+        const p1 = nodeCoordinates[bridge.from];
+        const p2 = nodeCoordinates[bridge.to];
+        if (!p1 || !p2) return;
+
+        // Draw curved bridge between lessons across the tree
+        const startX = p1.x + (p1.dir === -1 ? 150 : -150);
+        const startY = p1.y;
+        const endX = p2.x + (p2.dir === -1 ? 150 : -150);
+        const endY = p2.y;
+
+        // Arc height based on distance
+        const midX = (startX + endX) / 2;
+        const midY = Math.min(startY, endY) - 120;
+
+        const pathStr = `M ${startX} ${startY} Q ${midX} ${midY}, ${endX} ${endY}`;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathStr);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", bridge.color);
+        path.setAttribute("stroke-width", "2.5");
+        path.setAttribute("class", "cross-link-path");
+        path.setAttribute("marker-end", `url(#${bridge.marker})`);
+        path.setAttribute("opacity", "0.85");
+        layer.appendChild(path);
+
+        // Bridge Label Tag in the middle of curve
+        const labelG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        labelG.setAttribute("transform", `translate(${midX}, ${midY + 20})`);
+        labelG.innerHTML = `
+          <rect x="-110" y="-12" width="220" height="24" rx="7" fill="#020617" stroke="${bridge.color}" stroke-width="1.5" />
+          <text x="0" y="4" fill="${bridge.color}" font-size="9" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
+            🔗 ${bridge.label}
+          </text>
+        `;
+        layer.appendChild(labelG);
+      });
     }
 
     function drawHierarchy(node, linksLayer, nodesLayer) {
@@ -807,15 +970,7 @@
     }
 
     // Add SVG LinearGradient
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    defs.innerHTML = `
-      <linearGradient id="rootGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#1d4ed8" />
-        <stop offset="50%" stop-color="#3730a3" />
-        <stop offset="100%" stop-color="#7c3aed" />
-      </linearGradient>
-    `;
-    document.getElementById("mindmap-viewport").appendChild(defs);
+    
 
     function handleNodeClick(node) {
       if (node.raw && node.raw.children && node.raw.children.length > 0) {
@@ -856,6 +1011,31 @@
       document.getElementById("drawer-breadcrumb").innerText = parentTitle || "Môn học";
       document.getElementById("drawer-badge").innerText = targetNode.badge || "Chi Tiết";
 
+      
+      // Find any bridges connecting to or from this node
+      const relevantBridges = crossTopicBridges.filter(b => b.from === nodeId || b.to === nodeId);
+      let bridgeHtml = "";
+      if (relevantBridges.length > 0) {
+        bridgeHtml = `
+          <div class="p-3.5 bg-gradient-to-r from-amber-950/40 via-slate-950 to-blue-950/40 rounded-xl border border-amber-500/40 space-y-2">
+            <strong class="text-amber-400 text-xs flex items-center space-x-1.5">
+              <span>🔗 MẮC XÍCH LIÊN KẾT PHƯƠNG PHÁP LUẬN TRONG MÔN HỌC:</span>
+            </strong>
+            <div class="space-y-1.5 text-xs text-slate-300">
+              ${relevantBridges.map(b => `
+                <div class="p-2 rounded bg-slate-900/80 border border-slate-800 flex items-start space-x-2">
+                  <span class="text-amber-400 font-black">➔</span>
+                  <div>
+                    <span class="font-bold text-amber-300">${b.label}:</span>
+                    <span class="text-slate-300">${b.desc}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
       const contentBox = document.getElementById("drawer-content");
       contentBox.innerHTML = `
         <div class="space-y-4 animate-fadeIn">
@@ -865,6 +1045,9 @@
               ${targetNode.summary || targetNode.desc || "Chi tiết chuyên sâu từ bài giảng."}
             </p>
           </div>
+
+          <div>
+            ${bridgeHtml}
 
           <div>
             ${targetNode.details || `
