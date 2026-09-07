@@ -575,10 +575,11 @@
       ]
     };
 
-    // MINDMAP RENDERER WITH COLLAPSIBLE BRANCHES
-    let zoomLevel = 0.95;
-    let panX = 90;
-    let panY = 340;
+    
+    // MINDMAP RENDERER WITH TWO-SIDED SYMMETRIC TREE
+    let zoomLevel = 0.78;
+    let panX = 0;
+    let panY = 0;
     let isDragging = false;
     let startX, startY;
     let activeNodeId = null;
@@ -588,10 +589,26 @@
     const collapsedNodes = new Set();
 
     function initMindmap() {
+      // Auto center based on window size
+      const container = document.getElementById("canvas-container");
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || (window.innerHeight - 56);
+      panX = Math.round(w / 2);
+      panY = Math.round(h / 2);
+      
+      // Adjust default zoom for smaller screens
+      if (w < 1024) {
+        zoomLevel = 0.60;
+      } else {
+        zoomLevel = 0.80;
+      }
+
+      updateTransform();
       renderMindmapGraph();
       setupPanZoomEvents();
-      // Open Bài 1 by default
-      openNodeDetail("b1");
+
+      // Ensure drawer is initially closed as commanded
+      closeSidebar();
     }
 
     function renderMindmapGraph() {
@@ -600,7 +617,7 @@
       linksLayer.innerHTML = "";
       nodesLayer.innerHTML = "";
 
-      // Layout coordinate tree
+      // Layout coordinate tree (Center Root)
       const layoutData = {
         id: mindmapData.id,
         name: mindmapData.name,
@@ -609,15 +626,16 @@
         raw: mindmapData,
         x: 0,
         y: 0,
+        isRoot: true,
         children: []
       };
 
-      // Branch 1 & Branch 2 Vertical Offsets
-      let branchYOffsets = [-230, 250];
-
+      // Branch 1 (Phần I) on LEFT (dir = -1), Branch 2 (Phần II) on RIGHT (dir = 1)
       mindmapData.children.forEach((branch, bIdx) => {
-        const branchX = 380;
-        const branchY = branchYOffsets[bIdx];
+        const isLeft = (bIdx === 0);
+        const dir = isLeft ? -1 : 1;
+        const branchX = dir * 360;
+        const branchY = 0;
 
         const branchLayout = {
           id: branch.id,
@@ -627,16 +645,19 @@
           raw: branch,
           x: branchX,
           y: branchY,
+          dir: dir,
+          isBranch: true,
           children: []
         };
 
         if (!collapsedNodes.has(branch.id)) {
           const numLessons = branch.children.length;
-          const lessonSpacing = 72;
-          const startLessonY = branchY - ((numLessons - 1) * lessonSpacing) / 2;
+          // Vertical spread for lessons
+          const lessonSpacing = isLeft ? 74 : 110;
+          const startLessonY = -((numLessons - 1) * lessonSpacing) / 2;
 
           branch.children.forEach((lesson, lIdx) => {
-            const lessonX = branchX + 350;
+            const lessonX = branchX + dir * 360;
             const lessonY = startLessonY + lIdx * lessonSpacing;
 
             const lessonLayout = {
@@ -647,12 +668,13 @@
               raw: lesson,
               x: lessonX,
               y: lessonY,
+              dir: dir,
               children: []
             };
 
             if (!collapsedNodes.has(lesson.id) && lesson.children) {
               const numSubs = lesson.children.length;
-              const subSpacing = 30;
+              const subSpacing = 32;
               const startSubY = lessonY - ((numSubs - 1) * subSpacing) / 2;
 
               lesson.children.forEach((sub, sIdx) => {
@@ -660,8 +682,9 @@
                   id: sub.id,
                   name: sub.name,
                   raw: sub,
-                  x: lessonX + 300,
+                  x: lessonX + dir * 300,
                   y: startSubY + sIdx * subSpacing,
+                  dir: dir,
                   isLeaf: true
                 });
               });
@@ -680,21 +703,25 @@
     function drawHierarchy(node, linksLayer, nodesLayer) {
       if (node.children) {
         node.children.forEach(child => {
-          // Beautiful Bezier connector line
+          // Smooth horizontal Bezier curve
           const dx = child.x - node.x;
-          const cp1x = node.x + dx * 0.5;
+          const cp1x = node.x + dx * 0.45;
           const cp1y = node.y;
-          const cp2x = node.x + dx * 0.5;
+          const cp2x = node.x + dx * 0.55;
           const cp2y = child.y;
 
           const pathStr = `M ${node.x} ${node.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${child.x} ${child.y}`;
           const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
           path.setAttribute("d", pathStr);
           path.setAttribute("fill", "none");
-          path.setAttribute("stroke", child.isLeaf ? "#334155" : (child.color || "#3b82f6"));
-          path.setAttribute("stroke-width", child.isLeaf ? "1.5" : "2.5");
-          path.setAttribute("stroke-dasharray", child.isLeaf ? "3 3" : "none");
-          path.setAttribute("opacity", child.isLeaf ? "0.6" : "0.9");
+          path.setAttribute("stroke", child.isLeaf ? "#475569" : (child.color || "#3b82f6"));
+          path.setAttribute("stroke-width", child.isLeaf ? "1.8" : (child.isBranch ? "3.5" : "2.5"));
+          if (child.isLeaf) {
+            path.setAttribute("stroke-dasharray", "4 3");
+            path.setAttribute("opacity", "0.75");
+          } else {
+            path.setAttribute("opacity", "0.95");
+          }
           linksLayer.appendChild(path);
 
           drawHierarchy(child, linksLayer, nodesLayer);
@@ -710,43 +737,48 @@
         handleNodeClick(node);
       };
 
-      if (node.id === "root") {
+      if (node.isRoot) {
         g.innerHTML = `
-          <rect x="-180" y="-26" width="360" height="52" rx="26" fill="url(#rootGradient)" stroke="#60a5fa" stroke-width="2.5" class="pulse-glow" />
-          <text x="0" y="5.5" fill="#ffffff" font-size="12" font-weight="900" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
+          <rect x="-210" y="-30" width="420" height="60" rx="30" fill="url(#rootGradient)" stroke="#93c5fd" stroke-width="3" class="pulse-glow" />
+          <text x="0" y="7" fill="#ffffff" font-size="13" font-weight="900" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="0.5">
             🎯 PHƯƠNG PHÁP NGHIÊN CỨU & CAUSAL INFERENCE
           </text>
         `;
-      } else if (node.id.startsWith("branch")) {
+      } else if (node.isBranch) {
         const isCollapsed = collapsedNodes.has(node.id);
+        const circleX = (node.dir === -1) ? -155 : 155;
         g.innerHTML = `
-          <rect x="-150" y="-22" width="300" height="44" rx="14" fill="${node.id==='branch1' ? '#0f172a' : '#022c22'}" stroke="${node.color}" stroke-width="2" />
-          <text x="-130" y="4.5" fill="#ffffff" font-size="11" font-weight="800" font-family="'Plus Jakarta Sans', sans-serif">
+          <rect x="-170" y="-25" width="340" height="50" rx="16" fill="${node.id==='branch1' ? '#0b132b' : '#022c22'}" stroke="${node.color}" stroke-width="2.5" />
+          <text x="${node.dir === -1 ? 15 : -15}" y="5.5" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
             ${node.name}
           </text>
-          <circle cx="132" cy="0" r="10" fill="${node.color}" />
-          <text x="132" y="3.5" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
+          <circle cx="${circleX}" cy="0" r="11" fill="${node.color}" />
+          <text x="${circleX}" y="4.5" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
         `;
       } else if (node.isLeaf) {
+        const textW = Math.min(node.name.length * 6.8 + 24, 300);
+        const rectX = (node.dir === -1) ? -textW : 0;
+        const textX = (node.dir === -1) ? -textW + 12 : 12;
         g.innerHTML = `
-          <rect x="0" y="-11" width="${node.name.length * 6 + 16}" height="22" rx="7" fill="#0f172a" stroke="#334155" stroke-width="1" />
-          <text x="8" y="3.5" fill="#94a3b8" font-size="9.5" font-family="'Plus Jakarta Sans', sans-serif">
+          <rect x="${rectX}" y="-13" width="${textW}" height="26" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2" />
+          <text x="${textX}" y="4" fill="#94a3b8" font-size="10" font-family="'Plus Jakarta Sans', sans-serif">
             • ${node.name}
           </text>
         `;
       } else {
         const isCollapsed = collapsedNodes.has(node.id);
         const isActive = activeNodeId === node.id;
+        const btnCircleX = (node.dir === -1) ? -135 : 135;
         g.innerHTML = `
-          <rect x="-135" y="-19" width="270" height="38" rx="11" 
+          <rect x="-150" y="-22" width="300" height="44" rx="13" 
                 fill="${isActive ? '#1d4ed8' : '#1e293b'}" 
                 stroke="${isActive ? '#93c5fd' : (node.color || '#475569')}" 
-                stroke-width="${isActive ? '2.5' : '1.5'}" />
-          <text x="-120" y="4.5" fill="${isActive ? '#ffffff' : '#f1f5f9'}" font-size="10.5" font-weight="700" font-family="'Plus Jakarta Sans', sans-serif">
+                stroke-width="${isActive ? '3' : '1.8'}" />
+          <text x="${node.dir === -1 ? 12 : -12}" y="5" fill="${isActive ? '#ffffff' : '#f8fafc'}" font-size="11" font-weight="700" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">
             ${node.name}
           </text>
-          <circle cx="120" cy="0" r="8" fill="${node.color || '#3b82f6'}" />
-          <text x="120" y="3.5" fill="#ffffff" font-size="9.5" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
+          <circle cx="${btnCircleX}" cy="0" r="9" fill="${node.color || '#3b82f6'}" />
+          <text x="${btnCircleX}" y="4" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">${isCollapsed ? '+' : '−'}</text>
         `;
       }
 
@@ -757,9 +789,9 @@
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML = `
       <linearGradient id="rootGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#1e40af" />
+        <stop offset="0%" stop-color="#1d4ed8" />
         <stop offset="50%" stop-color="#3730a3" />
-        <stop offset="100%" stop-color="#6b21a8" />
+        <stop offset="100%" stop-color="#7c3aed" />
       </linearGradient>
     `;
     document.getElementById("mindmap-viewport").appendChild(defs);
@@ -808,7 +840,7 @@
         <div class="space-y-4 animate-fadeIn">
           <div>
             <h2 class="text-lg md:text-xl font-black text-white leading-tight">${targetNode.name}</h2>
-            <p class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 mt-2 leading-relaxed">
+            <p class="text-xs text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800 mt-2.5 leading-relaxed">
               ${targetNode.summary || targetNode.desc || "Chi tiết chuyên sâu từ bài giảng."}
             </p>
           </div>
@@ -902,6 +934,10 @@
         const factor = e.deltaY < 0 ? 1.08 : 0.92;
         zoomMindmap(factor);
       }, { passive: false });
+
+      window.addEventListener("resize", () => {
+        // keep centered if desired
+      });
     }
 
     function zoomMindmap(factor) {
@@ -910,9 +946,12 @@
     }
 
     function resetZoom() {
-      zoomLevel = 0.95;
-      panX = 90;
-      panY = 340;
+      const container = document.getElementById("canvas-container");
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || (window.innerHeight - 56);
+      panX = Math.round(w / 2);
+      panY = Math.round(h / 2);
+      zoomLevel = (w < 1024) ? 0.60 : 0.80;
       updateTransform();
     }
 
@@ -954,6 +993,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       initMindmap();
     });
+
   </script>
 </body>
 </html>
